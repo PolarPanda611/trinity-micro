@@ -26,7 +26,6 @@ import (
 
 // func TestNewContainer(t *testing.T) {
 // 	c := Config{
-// 		AutoFree:  true,
 // 		AutoWired: false,
 // 	}
 // 	tests := []struct {
@@ -246,133 +245,69 @@ import (
 // 	}
 // }
 
-// func TestContainer_getAutoWireTag(t *testing.T) {
-// 	type test3 struct {
-// 		test1 string `container:"autowire:true"`
-// 		test2 string `container:"autowire:false"`
-// 		test3 string `container:"autowire"`
-// 		test4 string `container:""`
-// 	}
-// 	type args struct {
-// 		obj   interface{}
-// 		index int
-// 	}
-// 	tests := []struct {
-// 		name   string
-// 		fields *Container
-// 		args   args
-// 		want   bool
-// 	}{
-// 		{
-// 			name:   "1",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 0,
-// 			},
-// 			want: true,
-// 		},
-// 		{
-// 			name:   "2",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 1,
-// 			},
-// 			want: false,
-// 		},
-// 		{
-// 			name:   "3",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 2,
-// 			},
-// 			want: true,
-// 		},
-// 		{
-// 			name:   "4",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 3,
-// 			},
-// 			want: false,
-// 		},
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			if got := tt.fields.getAutoWireTag(tt.args.obj, tt.args.index); got != tt.want {
-// 				t.Errorf("Container.getAutoWireTag() = %v, want %v", got, tt.want)
-// 			}
-// 		})
-// 	}
-// }
-
-// func TestContainer_getAutoFreeTag(t *testing.T) {
-// 	type test3 struct {
-// 		test1 string `container:"autofree:true"`
-// 		test2 string `container:"autofree:false"`
-// 		test3 string `container:"autofree"`
-// 		test4 string `container:""`
-// 	}
-// 	type args struct {
-// 		obj   interface{}
-// 		index int
-// 	}
-// 	tests := []struct {
-// 		name   string
-// 		fields *Container
-// 		args   args
-// 		want   bool
-// 	}{
-// 		{
-// 			name:   "1",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 0,
-// 			},
-// 			want: true,
-// 		},
-// 		{
-// 			name:   "2",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 1,
-// 			},
-// 			want: false,
-// 		},
-// 		{
-// 			name:   "3",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 2,
-// 			},
-// 			want: true,
-// 		},
-// 		{
-// 			name:   "4",
-// 			fields: NewContainer(),
-// 			args: args{
-// 				obj:   &test3{},
-// 				index: 3,
-// 			},
-// 			want: true,
-// 		},
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			if got := tt.fields.getAutoFreeTag(tt.args.obj, tt.args.index); got != tt.want {
-// 				t.Errorf("Container.getAutoFreeTag() = %v, want %v", got, tt.want)
-// 			}
-// 		})
-// 	}
-// }
+func TestContainer_getAutoWireTag(t *testing.T) {
+	type test3 struct {
+		test1 string `container:"autowire:true"`
+		test2 string `container:"autowire:false"`
+		test3 string `container:"autowire"`
+		test4 string `container:""`
+	}
+	type args struct {
+		obj   interface{}
+		index int
+	}
+	tests := []struct {
+		name   string
+		fields *Container
+		args   args
+		want   bool
+	}{
+		{
+			name:   "1",
+			fields: NewContainer(),
+			args: args{
+				obj:   &test3{},
+				index: 0,
+			},
+			want: true,
+		},
+		{
+			name:   "2",
+			fields: NewContainer(),
+			args: args{
+				obj:   &test3{},
+				index: 1,
+			},
+			want: false,
+		},
+		{
+			name:   "3",
+			fields: NewContainer(),
+			args: args{
+				obj:   &test3{},
+				index: 2,
+			},
+			want: true,
+		},
+		{
+			name:   "4",
+			fields: NewContainer(),
+			args: args{
+				obj:   &test3{},
+				index: 3,
+			},
+			want: true,
+		},
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.fields.getAutoWireTag(tt.args.obj, tt.args.index); got != tt.want {
+				t.Errorf("Container.getAutoWireTag() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
 
 // func TestContainer_RegisterInstance(t *testing.T) {
 // 	type fields struct {
