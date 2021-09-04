@@ -3,127 +3,102 @@ package container
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/sirupsen/logrus"
 )
 
-type diSelfCheckResultCount struct {
-	info    int
-	warning int
-}
-
 // DiSelfCheck ()map[reflect.Type]interface{} {}
-func (s *Container) DiSelfCheck(instanceType reflect.Type) {
-	resultCount := new(diSelfCheckResultCount)
-	pool, ok := s.poolMap[instanceType]
+func (s *Container) DiSelfCheck(instanceName string) error {
+	pool, ok := s.poolMap[instanceName]
 	if !ok {
-		panic(fmt.Errorf("%v not exist in pool map", instanceType))
+		return fmt.Errorf("instance `%v` not exist in pool map", instanceName)
 	}
 	instance := pool.Get()
 	defer pool.Put(instance)
+	t := reflect.TypeOf(instance)
+	if t.Kind() != reflect.Ptr {
+		return fmt.Errorf("the object to be injected %v should be addressable", t)
+	}
 	instanceVal := reflect.Indirect(reflect.ValueOf(instance))
 	for index := 0; index < instanceVal.NumField(); index++ {
 		objectName := encodeObjectName(instance, index)
-		availableInjectInstance := 0
-		var availableInjectType []reflect.Type
+		if _, exist := getTagByName(instance, index, CONTAINER); !exist {
+			s.c.Log.Debugf("self check : instanceName: %v index: %v objectName: %v, the container tag not exist, skip inject", instanceName, index, objectName)
+			continue
+		}
+		resourceName, exist := getStringTagFromContainer(instance, index, RESOURCE)
+		if !exist {
+			return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, the resource tag not exist in container", instanceName, index, objectName)
+		}
+		instancePool, exist := s.poolMap[resourceName]
+		if !exist {
+			return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, resource name: %v not register in container ", instanceName, index, objectName, resourceName)
+		}
 		val := instanceVal.Field(index)
 		autoWire := s.getAutoWireTag(instance, index)
 		if !autoWire {
 			if val.CanSet() {
-				fmt.Println(objectName, resultCount, "warning: autowired tag not set and the val can set ")
+				s.c.Log.Warnf("self check warning: instanceName: %v index: %v objectName: %v, autowired is false but the param can be injected ", instanceName, index, objectName)
 			}
-			continue
 		}
 		if !val.CanSet() {
-			fmt.Println(objectName, resultCount, "error : private param")
-			continue
+			return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, private param", instanceName, index, objectName)
 		}
 		if !val.IsZero() {
-			fmt.Println(objectName, resultCount, "error : not null param")
-			continue
+			return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, the param to be injected is not null", instanceName, index, objectName)
 		}
-		if val.Kind() == reflect.Struct {
-			fmt.Println(objectName, resultCount, "error : should be addressable")
-			continue
-		}
-		if val.Kind() == reflect.Ptr {
-			for _, v := range s.GetInstanceTypeByTag(s.getResourceTag(instance, index)) {
-				if val.Type() == v {
-					availableInjectType = append(availableInjectType, v)
-					availableInjectInstance++
-				}
+		switch val.Kind() {
+		case reflect.Interface:
+			instance := instancePool.Get()
+			defer instancePool.Put(instance)
+			instanceType := reflect.TypeOf(instance)
+			if !instanceType.Implements(val.Type()) {
+				return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, resource name: %v type: %v not implement the interface %v", instanceName, index, objectName, resourceName, instanceType.Name(), val.Type().Name())
 			}
-			fmt.Println(availableInjectInstance, objectName, resultCount, availableInjectType)
-			continue
-		}
-		if val.Kind() == reflect.Interface {
-			for _, v := range s.GetInstanceTypeByTag(s.getResourceTag(instance, index)) {
-				if v.Implements(val.Type()) {
-					availableInjectType = append(availableInjectType, v)
-					availableInjectInstance++
-				}
-			}
-			fmt.Println(availableInjectInstance, objectName, resultCount, availableInjectType)
-			continue
-		}
-	}
-}
-
-func (s *Container) DiAllFields(dest interface{}, injectingMap map[reflect.Type]interface{}) (map[reflect.Type]interface{}, map[reflect.Type]interface{}) {
-	t := reflect.TypeOf(dest)
-	if t.Kind() != reflect.Ptr {
-		panic(fmt.Errorf("toFree object %v should be addressable", t))
-	}
-	sharedInstance := make(map[reflect.Type]interface{})
-	toFreeInstance := make(map[reflect.Type]interface{})
-	destVal := reflect.Indirect(reflect.ValueOf(dest))
-	for index := 0; index < destVal.NumField(); index++ {
-		autoWire := s.getAutoWireTag(dest, index)
-		autoFree := s.getAutoFreeTag(dest, index)
-		val := destVal.Field(index)
-		if !autoWire {
-			continue
-		}
-		objectName := encodeObjectName(dest, index)
-		switch s.instanceMapping[objectName] {
 		default:
-			repo, sharedInstanceMap, toFreeInstanceMap := s.GetInstance(s.instanceMapping[objectName], injectingMap)
-			for instanceType, instanceValue := range sharedInstanceMap {
-				sharedInstance[instanceType] = instanceValue
+			instance := instancePool.Get()
+			defer instancePool.Put(instance)
+			instanceType := reflect.TypeOf(instance)
+			if val.Type() != instanceType {
+				return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, resource name: %v type not same, expected: %v actual: %v", instanceName, index, objectName, resourceName, val.Type(), instanceType)
 			}
-			for instanceType, instanceValue := range toFreeInstanceMap {
-				toFreeInstance[instanceType] = instanceValue
-			}
-			val.Set(reflect.ValueOf(repo))
-			sharedInstance[val.Type()] = repo
-			if autoFree {
-				toFreeInstance[val.Type()] = repo
-			}
-			break
 		}
 	}
-	return sharedInstance, toFreeInstance
+	return nil
 }
 
-func (s *Container) DiFree(dest interface{}) {
-	t := reflect.TypeOf(dest)
-	if t.Kind() != reflect.Ptr {
-		panic(fmt.Errorf("toFree object %v should be addressable", t))
-	}
+func (s *Container) DiAllFields(dest interface{}, injectingMap map[string]interface{}) {
 	destVal := reflect.Indirect(reflect.ValueOf(dest))
 	for index := 0; index < destVal.NumField(); index++ {
+		if _, exist := getTagByName(dest, index, CONTAINER); !exist {
+			continue
+		}
+		resourceName, _ := getStringTagFromContainer(dest, index, RESOURCE)
 		val := destVal.Field(index)
-		autoWire := s.getAutoWireTag(dest, index)
-		autoFree := s.getAutoFreeTag(dest, index)
-		if !val.CanSet() {
+		if instance, exist := injectingMap[resourceName]; exist {
+			val.Set(reflect.ValueOf(instance))
 			continue
 		}
-		if !autoWire {
-			continue
-		}
-		if !autoFree {
-			continue
-		}
-		if !val.IsZero() {
-			val.Set(reflect.Zero(val.Type()))
+		instance := s.GetInstance(resourceName, injectingMap)
+		val.Set(reflect.ValueOf(instance))
+	}
+}
+
+func DiFree(log logrus.FieldLogger, dest interface{}) {
+	t := reflect.TypeOf(dest)
+	switch t.Kind() {
+	case reflect.Ptr:
+		destVal := reflect.Indirect(reflect.ValueOf(dest))
+		for index := 0; index < destVal.NumField(); index++ {
+			objectName := encodeObjectName(dest, index)
+			if _, exist := getTagByName(dest, index, CONTAINER); !exist {
+				log.Debugf("DI free: objectName: %v, the container tag not exist, skiped", objectName)
+				continue
+			}
+			val := destVal.Field(index)
+			if val.CanSet() {
+				val.Set(reflect.Zero(val.Type()))
+			}
 		}
 	}
 }

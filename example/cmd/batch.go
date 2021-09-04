@@ -12,12 +12,14 @@ var (
 		Use:   batchCmdString,
 		Short: fmt.Sprintf("starting the %v service for %v", batchCmdString, projectName),
 		Long:  fmt.Sprintf("This is the %v service for %v", batchCmdString, projectName),
-		Run: func(cmd *cobra.Command, args []string) {
-			log.Printf("%v:%v service starting ", projectName, batchCmdString)
-		},
+		Run:   RunBatch,
 	}
 )
 
 func init() {
 	rootCmd.AddCommand(batchCmd)
+}
+
+func RunBatch(cmd *cobra.Command, args []string) {
+	log.Printf("%v:%v service starting ", projectName, batchCmdString)
 }

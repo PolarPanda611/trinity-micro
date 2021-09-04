@@ -3,18 +3,29 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 	"trinity-micro/example/internal/domain/dto"
 	"trinity-micro/example/internal/domain/service"
+	"trinity-micro/example/internal/infra/containers"
 )
 
 var _ UserController = new(userControllerImpl)
+
+func init() {
+	UserControllerPool := &sync.Pool{
+		New: func() interface{} {
+			return new(userControllerImpl)
+		},
+	}
+	containers.Container.RegisterInstance(UserControllerPool, "UserController")
+}
 
 type UserController interface {
 	GetUserByID(w http.ResponseWriter, r *http.Request)
 	ListUser(w http.ResponseWriter, r *http.Request)
 }
 type userControllerImpl struct {
-	userSrv service.UserService
+	userSrv service.UserService `container:"autowire:true"`
 }
 
 func (c *userControllerImpl) GetUserByID(w http.ResponseWriter, r *http.Request) {
