@@ -449,8 +449,8 @@ func TestContainer_GetInstance(t *testing.T) {
 		s1.T = s2
 		s2.T = s1
 		s := NewContainer()
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testShared1{} }}, "shared1")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testShared2{} }}, "shared2")
+		s.RegisterInstance("shared1", &sync.Pool{New: func() interface{} { return &testShared1{} }})
+		s.RegisterInstance("shared2", &sync.Pool{New: func() interface{} { return &testShared2{} }})
 		injectMap := make(map[string]interface{})
 		instance := s.GetInstance("shared1", injectMap)
 		assert.Equal(t, s1, instance, "wrong instance ")
@@ -475,9 +475,9 @@ func TestContainer_GetInstance(t *testing.T) {
 			},
 		}
 		s := NewContainer()
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testRep{} }}, "testRep")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testSrv{} }}, "testSrv")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testCtl{} }}, "testCtl")
+		s.RegisterInstance("testRep", &sync.Pool{New: func() interface{} { return &testRep{} }})
+		s.RegisterInstance("testSrv", &sync.Pool{New: func() interface{} { return &testSrv{} }})
+		s.RegisterInstance("testCtl", &sync.Pool{New: func() interface{} { return &testCtl{} }})
 		injectMap := make(map[string]interface{})
 		instance := s.GetInstance("testCtl", injectMap)
 		assert.Equal(t, res, instance, "wrong instance ")
@@ -502,9 +502,9 @@ func TestContainer_GetInstance(t *testing.T) {
 			},
 		}
 		s := NewContainer()
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testRep{} }}, "testRepI")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testSrv{} }}, "testSrvI")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &testCtl{} }}, "testCtl")
+		s.RegisterInstance("testRepI", &sync.Pool{New: func() interface{} { return &testRep{} }})
+		s.RegisterInstance("testSrvI", &sync.Pool{New: func() interface{} { return &testSrv{} }})
+		s.RegisterInstance("testCtl", &sync.Pool{New: func() interface{} { return &testCtl{} }})
 		injectMap := make(map[string]interface{})
 		instance := s.GetInstance("testCtl", injectMap)
 		assert.Equal(t, res, instance, "wrong instance ")
@@ -546,18 +546,18 @@ func TestContainer_GetInstance(t *testing.T) {
 			ShipSrv: sSrv,
 		}
 		s := NewContainer()
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &userRep{} }}, "userRep")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &addressRepo{} }}, "addressRepo")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &orderRepo{} }}, "orderRepo")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &shipRepo{} }}, "shipRepo")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &userSrv{} }}, "userSrv")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &addressSrv{} }}, "addressSrv")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &orderSrv{} }}, "orderSrv")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &shipSrv{} }}, "shipSrv")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &userCtl{} }}, "userCtl")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &addressCtl{} }}, "addressCtl")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &orderCtl{} }}, "orderCtl")
-		s.RegisterInstance(&sync.Pool{New: func() interface{} { return &shipCtl{} }}, "shipCtl")
+		s.RegisterInstance("userRep", &sync.Pool{New: func() interface{} { return &userRep{} }})
+		s.RegisterInstance("addressRepo", &sync.Pool{New: func() interface{} { return &addressRepo{} }})
+		s.RegisterInstance("orderRepo", &sync.Pool{New: func() interface{} { return &orderRepo{} }})
+		s.RegisterInstance("shipRepo", &sync.Pool{New: func() interface{} { return &shipRepo{} }})
+		s.RegisterInstance("userSrv", &sync.Pool{New: func() interface{} { return &userSrv{} }})
+		s.RegisterInstance("addressSrv", &sync.Pool{New: func() interface{} { return &addressSrv{} }})
+		s.RegisterInstance("orderSrv", &sync.Pool{New: func() interface{} { return &orderSrv{} }})
+		s.RegisterInstance("shipSrv", &sync.Pool{New: func() interface{} { return &shipSrv{} }})
+		s.RegisterInstance("userCtl", &sync.Pool{New: func() interface{} { return &userCtl{} }})
+		s.RegisterInstance("addressCtl", &sync.Pool{New: func() interface{} { return &addressCtl{} }})
+		s.RegisterInstance("orderCtl", &sync.Pool{New: func() interface{} { return &orderCtl{} }})
+		s.RegisterInstance("shipCtl", &sync.Pool{New: func() interface{} { return &shipCtl{} }})
 		if err := s.InstanceDISelfCheck(); err != nil {
 			assert.Error(t, err, "self check error ")
 		}

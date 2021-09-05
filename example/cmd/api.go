@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"trinity-micro/core/ioc/container"
+	_ "trinity-micro/example/internal/adapter/controller"
 	"trinity-micro/example/internal/infra/containers"
 
 	"github.com/go-chi/chi/v5"
@@ -28,10 +30,7 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	log.Printf("%v:%v service starting ", projectName, apiCmdString)
 	containers.Container.InstanceDISelfCheck()
 	r := chi.NewRouter()
-	r.Use()
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hi"))
-	})
+	container.DIRouter(r, containers.Container)
 	s := &http.Server{
 		Addr:              ":3000",
 		Handler:           r,

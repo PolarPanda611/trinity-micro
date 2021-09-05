@@ -55,49 +55,49 @@ func TestContainer_DiFree(t *testing.T) {
 	empty := inject1{}
 	{
 		obj := struct{}{}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Equal(t, struct{}{}, obj, "di free successfully")
 	}
 	{
 		obj := struct {
 			test1 inject1 `container:"autowire:true"`
 		}{a}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Equal(t, a, obj.test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 inject1 `container:"autowire:true"`
 		}{a}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Equal(t, empty, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 inject1 `container:"autowire:false"`
 		}{a}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Equal(t, empty, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 inject1 `container:"autowire:true"`
 		}{a}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Equal(t, empty, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 *inject1 `container:"autowire:true"`
 		}{&a}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Nil(t, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 string `container:"autowire:true"`
 		}{"1"}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Equal(t, "", obj.Test1, "diFree error ")
 	}
 	{
@@ -105,7 +105,7 @@ func TestContainer_DiFree(t *testing.T) {
 		obj := struct {
 			Test1 *string `container:"autowire:true"`
 		}{&s}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Nil(t, obj.Test1, "diFree error ")
 	}
 	{
@@ -114,7 +114,7 @@ func TestContainer_DiFree(t *testing.T) {
 			Test1 *string `container:"autowire:true"`
 			T     string
 		}{&s, "1"}
-		DiFree(log, &obj)
+		DiFree(logger, &obj)
 		assert.Nil(t, obj.Test1, "diFree error ")
 		assert.Equal(t, "1", obj.T, "diFree error ")
 	}
@@ -300,7 +300,7 @@ func TestContainer_DiSelfCheck(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			for k, v := range tt.fields.instances {
-				tt.fields.c.RegisterInstance(v, k)
+				tt.fields.c.RegisterInstance(k, v)
 			}
 			if err := tt.fields.c.DiSelfCheck(tt.args.instanceName); err != nil {
 				if tt.wantErr {

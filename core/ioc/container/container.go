@@ -42,7 +42,7 @@ func NewContainer(c ...Config) *Container {
 // RegisterInstance register new instance
 // if instanceName is empty will fatal
 // if instancePool is invalid , will fatal
-func (s *Container) RegisterInstance(instancePool *sync.Pool, instanceName string) {
+func (s *Container) RegisterInstance(instanceName string, instancePool *sync.Pool) {
 	if instanceName == "" {
 		s.c.Log.Fatal("instance name cannot be empty")
 	}
