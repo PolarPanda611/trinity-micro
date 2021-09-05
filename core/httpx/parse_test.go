@@ -20,7 +20,7 @@ import (
 	"testing"
 	"trinity-micro/core/requests"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -253,7 +253,7 @@ func TestIsValidHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := InvokeHandler(tt.args.r, tt.args.handlerType)
+			got, err := InvokeHandler(tt.args.handlerType, tt.args.r)
 			if tt.wantErr {
 				if err == nil {
 					assert.FailNow(t, "expect has error actual not ")

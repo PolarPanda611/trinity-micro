@@ -12,9 +12,10 @@ const (
 )
 
 type Response struct {
-	Status int            `json:"status"`
-	Result interface{}    `json:"result"`
-	Error  *ResponseError `json:"error,omitempty"`
+	Status  int            `json:"status"`
+	Result  interface{}    `json:"result,omitempty"`
+	Error   *ResponseError `json:"error,omitempty"`
+	TraceID string         `json:"trace_id"`
 }
 
 type ResponseError struct {

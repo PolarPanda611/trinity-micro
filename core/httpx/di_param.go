@@ -2,7 +2,6 @@ package httpx
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"reflect"
 	"trinity-micro/core/e"
@@ -14,7 +13,7 @@ func DIParamHandler(handler interface{}) func(w http.ResponseWriter, r *http.Req
 		r = r.WithContext(context.WithValue(r.Context(), HTTPStatus, new(int)))
 		handlerType := reflect.TypeOf(handler)
 		// sessionLogger := log.ForContext(r.Context())
-		inParams, err := InvokeHandler(r, handlerType)
+		inParams, err := InvokeHandler(handlerType, r)
 		if err != nil {
 			// e.Logging(sessionLogger, err)
 			HttpResponseErr(w, err)
@@ -53,10 +52,55 @@ func DIParamHandler(handler interface{}) func(w http.ResponseWriter, r *http.Req
 		}
 
 	}
+}
+func DIParamMethod(method reflect.Method, instance interface{}) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r = r.WithContext(context.WithValue(r.Context(), HTTPRequest, r))
+		r = r.WithContext(context.WithValue(r.Context(), HTTPStatus, new(int)))
+		handlerType := method.Type
+		// sessionLogger := log.ForContext(r.Context())
+		inParams, err := InvokeMethod(handlerType, r, instance, w)
+		if err != nil {
+			// e.Logging(sessionLogger, err)
+			HttpResponseErr(w, err)
+			return
+		}
+		responseValue := method.Func.Call(inParams)
+		switch len(responseValue) {
+		case 0:
+			HttpResponse(w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), nil)
+			return
+		case 1:
+			if err, ok := responseValue[0].Interface().(error); ok {
+				if err != nil {
+					// e.Logging(sessionLogger, err)
+					HttpResponseErr(w, err)
+					return
+				}
+			}
+			HttpResponse(w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), responseValue[0].Interface())
+			return
+		case 2:
+			if err, ok := responseValue[1].Interface().(error); ok {
+				if err != nil {
+					// e.Logging(sessionLogger, err)
+					HttpResponseErr(w, err)
+					return
+				}
+			}
+			HttpResponse(w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), responseValue[0].Interface())
+			return
+		default:
+			err := e.NewError(e.Error, e.ErrInternalServer, "wrong res type , first out should be response value , second out should be error ")
+			// e.Logging(sessionLogger, err)
+			HttpResponseErr(w, err)
+			return
+		}
 
+	}
 }
 
-func InvokeHandler(r *http.Request, handlerType reflect.Type) ([]reflect.Value, error) {
+func InvokeHandler(handlerType reflect.Type, r *http.Request) ([]reflect.Value, error) {
 	if !IsHandler(handlerType) {
 		return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler type , must be func ")
 	}
@@ -86,8 +130,52 @@ func InvokeHandler(r *http.Request, handlerType reflect.Type) ([]reflect.Value, 
 	return InParams, nil
 }
 
+func InvokeMethod(handlerType reflect.Type, r *http.Request, instance interface{}, w http.ResponseWriter) ([]reflect.Value, error) {
+	if !IsHandler(handlerType) {
+		return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler type , must be func ")
+	}
+	numsIn := HandlerNumsIn(handlerType)
+	InParams := make([]reflect.Value, numsIn)
+	var i = 0
+	for i < numsIn {
+		inType := handlerType.In(i)
+		inKind := inType.Kind()
+		switch inKind {
+		case reflect.Interface:
+			if contextType.Implements(inType) {
+				InParams[i] = reflect.ValueOf(r.Context())
+				break
+			}
+			if httpWriterType.Implements(inType) {
+				InParams[i] = reflect.ValueOf(w)
+				break
+			}
+			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , interface only support context and httpResponseWriter")
+		case reflect.Struct:
+			targetValue := reflect.New(inType).Interface()
+			if err := Parse(r, targetValue); err != nil {
+				return nil, err
+			}
+			InParams[i] = reflect.ValueOf(targetValue).Elem()
+		case reflect.Ptr:
+			if inType == requestType {
+				InParams[i] = reflect.ValueOf(r)
+				break
+			}
+			if inType == reflect.TypeOf(instance) {
+				InParams[i] = reflect.ValueOf(instance)
+				break
+			}
+			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported ptr ")
+		default:
+			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported type ")
+		}
+		i++
+	}
+	return InParams, nil
+}
+
 func IsHandler(handlerType reflect.Type) bool {
-	fmt.Println(handlerType)
 	return handlerType.Kind() == reflect.Func
 }
 

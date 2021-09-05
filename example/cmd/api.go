@@ -31,6 +31,26 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	containers.Container.InstanceDISelfCheck()
 	r := chi.NewRouter()
 	container.DIRouter(r, containers.Container)
+	// r.Get("/test/user2", func(w http.ResponseWriter, r *http.Request) {
+	// 	res := httpx.Response{
+	// 		Status: 200,
+	// 		Result: "haha",
+	// 	}
+	// 	b, _ := json.Marshal(res)
+	// 	w.WriteHeader(200)
+	// 	w.Write(b)
+	// })
+	// r.Get("/test/user2/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// 	idStr := chi.URLParam(r, "id")
+	// 	id, _ := strconv.Atoi(idStr)
+	// 	res := httpx.Response{
+	// 		Status: 200,
+	// 		Result: id,
+	// 	}
+	// 	b, _ := json.Marshal(res)
+	// 	w.WriteHeader(200)
+	// 	w.Write(b)
+	// })
 	s := &http.Server{
 		Addr:              ":3000",
 		Handler:           r,

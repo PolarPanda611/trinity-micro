@@ -19,12 +19,29 @@ import (
 	"trinity-micro/core/e"
 	"trinity-micro/core/utils"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 var (
-	contextType = reflect.ValueOf(context.Background()).Type()
+	contextType    = reflect.ValueOf(context.Background()).Type()
+	httpWriterType = reflect.ValueOf(NewWriter()).Type()
+	requestType    = reflect.ValueOf(&http.Request{}).Type()
 )
+
+type w struct {
+}
+
+func (w w) Header() http.Header {
+	return nil
+}
+func (w w) Write([]byte) (int, error) {
+	return 0, nil
+}
+func (w w) WriteHeader(statusCode int) {
+}
+func NewWriter() http.ResponseWriter {
+	return w{}
+}
 
 type HTTPContextKey string
 

@@ -10,6 +10,14 @@ import (
 	"trinity-micro/core/httpx"
 )
 
+var (
+	injectMapPool = &sync.Pool{
+		New: func() interface{} {
+			return make(map[string]interface{})
+		},
+	}
+)
+
 type bootingController struct {
 	rootPath     string
 	instanceName string
@@ -70,12 +78,14 @@ func InitInstance(container *Container) {
 func RouterSelfCheck(container *Container) {
 	for _, controller := range _bootingControllers {
 		for _, requestMap := range controller.requestMaps {
-			injectMap := make(map[string]interface{})
+			injectMap := injectMapPool.Get().(map[string]interface{})
 			instance := container.GetInstance(controller.instanceName, injectMap)
 			defer func() {
 				for k, v := range injectMap {
 					container.Release(k, v)
+					delete(injectMap, k)
 				}
+				injectMapPool.Put(injectMap)
 			}()
 			currentMethod, ok := reflect.TypeOf(instance).MethodByName(requestMap.funcName)
 			if !ok {
@@ -88,17 +98,20 @@ func RouterSelfCheck(container *Container) {
 }
 
 func DIHandler(container *Container, instanceName string, funcName string) func(w http.ResponseWriter, r *http.Request) {
-	injectMapping := make(map[string]interface{})
-	instance := container.GetInstance(instanceName, injectMapping)
-	currentMethod, ok := reflect.TypeOf(instance).MethodByName(funcName)
-	if !ok {
-		panic("controller has no method ")
-	}
-	return httpx.DIParamHandler(currentMethod.Func.Interface())
+	injectMap := injectMapPool.Get().(map[string]interface{})
+	instance := container.GetInstance(instanceName, injectMap)
+	defer func() {
+		for k, v := range injectMap {
+			container.Release(k, v)
+			delete(injectMap, k)
+		}
+		injectMapPool.Put(injectMap)
+	}()
+	currentMethod, _ := reflect.TypeOf(instance).MethodByName(funcName)
+	return httpx.DIParamMethod(currentMethod, instance)
 }
 
 type Mux interface {
-	Method(method, pattern string, handler http.Handler)
 	MethodFunc(method, pattern string, handlerFn http.HandlerFunc)
 }
 
@@ -110,7 +123,7 @@ func DIRouter(r Mux, container *Container) {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
 			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName))
-			log.Printf("router register: method: %v , path: %v handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
+			log.Printf("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
 
