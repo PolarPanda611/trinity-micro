@@ -1,5 +1,11 @@
 # trinity-micro
 
+```
+cd example/
+go run main.go api
+```
+
+
 
 ```
 % wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2
