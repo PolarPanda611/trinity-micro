@@ -1,8 +1,8 @@
 # trinity-micro
 
 
-
-danieltan@Daniels-MacBook-Pro wrk % wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2
+```
+% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2
 Running 30s test @ http://127.0.0.1:3000/test/user2
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -11,7 +11,8 @@ Running 30s test @ http://127.0.0.1:3000/test/user2
   1656779 requests in 30.01s, 232.26MB read
 Requests/sec:  55200.45
 Transfer/sec:      7.74MB
-danieltan@Daniels-MacBook-Pro wrk % wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user 
+
+% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user 
 Running 30s test @ http://127.0.0.1:3000/test/user
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -20,11 +21,11 @@ Running 30s test @ http://127.0.0.1:3000/test/user
   1746373 requests in 30.01s, 229.84MB read
 Requests/sec:  58188.78
 Transfer/sec:      7.66MB
+```
 
 
-
-
-danieltan@Daniels-MacBook-Pro wrk % wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2/1
+```
+% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2/1
 Running 30s test @ http://127.0.0.1:3000/test/user2/1
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -33,7 +34,8 @@ Running 30s test @ http://127.0.0.1:3000/test/user2/1
   3584082 requests in 30.10s, 533.22MB read
 Requests/sec: 119068.61
 Transfer/sec:     17.71MB
-danieltan@Daniels-MacBook-Pro wrk % wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user/1 
+
+% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user/1 
 Running 30s test @ http://127.0.0.1:3000/test/user/1
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -42,3 +44,4 @@ Running 30s test @ http://127.0.0.1:3000/test/user/1
   3452473 requests in 30.10s, 484.00MB read
 Requests/sec: 114694.49
 Transfer/sec:     16.08MB
+```
