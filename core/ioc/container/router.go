@@ -1,11 +1,13 @@
 package container
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"sync"
+	"trinity-micro/core/e"
 	"trinity-micro/core/httpx"
 )
 
@@ -97,18 +99,59 @@ func RouterSelfCheck(container *Container) {
 
 }
 
+// multi instance di handler
 func DIHandler(container *Container, instanceName string, funcName string) func(w http.ResponseWriter, r *http.Request) {
-	injectMap := injectMapPool.Get().(map[string]interface{})
-	instance := container.GetInstance(instanceName, injectMap)
-	defer func() {
-		for k, v := range injectMap {
-			container.Release(k, v)
-			delete(injectMap, k)
+	return func(w http.ResponseWriter, r *http.Request) {
+		r = r.WithContext(context.WithValue(r.Context(), httpx.HTTPRequest, r))
+		r = r.WithContext(context.WithValue(r.Context(), httpx.HTTPStatus, new(int)))
+		injectMap := injectMapPool.Get().(map[string]interface{})
+		instance := container.GetInstance(instanceName, injectMap)
+		defer func() {
+			for k, v := range injectMap {
+				container.Release(k, v)
+				delete(injectMap, k)
+			}
+			injectMapPool.Put(injectMap)
+		}()
+		currentMethod, _ := reflect.TypeOf(instance).MethodByName(funcName)
+		inParams, err := httpx.InvokeMethod(currentMethod.Type, r, instance, w)
+		if err != nil {
+			// e.Logging(sessionLogger, err)
+			httpx.HttpResponseErr(w, err)
+			return
 		}
-		injectMapPool.Put(injectMap)
-	}()
-	currentMethod, _ := reflect.TypeOf(instance).MethodByName(funcName)
-	return httpx.DIParamMethod(currentMethod, instance)
+		responseValue := currentMethod.Func.Call(inParams)
+		switch len(responseValue) {
+		case 0:
+			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), nil)
+			return
+		case 1:
+			if err, ok := responseValue[0].Interface().(error); ok {
+				if err != nil {
+					// e.Logging(sessionLogger, err)
+					httpx.HttpResponseErr(w, err)
+					return
+				}
+			}
+			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), responseValue[0].Interface())
+			return
+		case 2:
+			if err, ok := responseValue[1].Interface().(error); ok {
+				if err != nil {
+					// e.Logging(sessionLogger, err)
+					httpx.HttpResponseErr(w, err)
+					return
+				}
+			}
+			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), responseValue[0].Interface())
+			return
+		default:
+			err := e.NewError(e.Error, e.ErrInternalServer, "wrong res type , first out should be response value , second out should be error ")
+			// e.Logging(sessionLogger, err)
+			httpx.HttpResponseErr(w, err)
+			return
+		}
+	}
 }
 
 type mux interface {

@@ -8,4 +8,5 @@ const (
 	RESOURCE       Keyword = "resource"
 	TAG_SPLITER            = ";"
 	TAG_KV_SPLITER         = ":"
+	CONTEXT                = "CONTEXT"
 )

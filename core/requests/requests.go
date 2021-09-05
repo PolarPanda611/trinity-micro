@@ -1,11 +1,3 @@
-/*
- * @Author: Daniel TAN
- * @Description:
- * @Date: 2021-08-18 09:36:48
- * @LastEditTime: 2021-08-30 20:09:31
- * @LastEditors: Daniel TAN
- * @FilePath: /fr-price-common-pkg/core/requests/requests.go
- */
 package requests
 
 import (

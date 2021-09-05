@@ -1,20 +1,3 @@
-/*
- * @Author: Daniel TAN
- * @Description:
- * @Date: 2021-04-02 17:31:18
- * @LastEditTime: 2021-08-30 19:13:14
- * @LastEditors: Daniel TAN
- * @FilePath: /fr-price-common-pkg/e/error.go
- */
-/*
- * @Author: Daniel TAN
- * @Description:
- * @Date: 2020-11-23 13:10:45
- * @LastEditTime: 2020-11-24 11:12:38
- * @LastEditors: Daniel TAN
- * @FilePath: /nma/internal/job/e/e.go
- */
-
 package e
 
 import (

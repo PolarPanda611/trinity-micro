@@ -1,11 +1,3 @@
-/*
- * @Author: Daniel TAN
- * @Description:
- * @Date: 2021-08-30 16:26:22
- * @LastEditTime: 2021-09-02 17:51:08
- * @LastEditors: Daniel TAN
- * @FilePath: /fr-price-common-pkg/e/err_code.go
- */
 package e
 
 // 400 error

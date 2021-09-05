@@ -1,11 +1,3 @@
-/*
- * @Author: Daniel TAN
- * @Description:
- * @Date: 2021-06-29 16:33:30
- * @LastEditTime: 2021-08-18 10:45:58
- * @LastEditors: Daniel TAN
- * @FilePath: /fr-price-common-pkg/config/handler/env_handler_test.go
- */
 package handler
 
 import (

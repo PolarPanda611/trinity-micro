@@ -1,11 +1,3 @@
-/*
- * @Author: Daniel TAN
- * @Description:
- * @Date: 2021-08-24 11:26:20
- * @LastEditTime: 2021-08-24 13:13:37
- * @LastEditors: Daniel TAN
- * @FilePath: /fr-price-common-pkg/core/requests/mime.go
- */
 package requests
 
 const (
