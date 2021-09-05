@@ -35,7 +35,7 @@ func NewContainer(c ...Config) *Container {
 	} else {
 		result.c = DefaultConfig
 	}
-	result.c.Log = result.c.Log.WithField("stage", "init container")
+	result.c.Log = result.c.Log.WithField("app", "container")
 	return result
 }
 
@@ -65,8 +65,10 @@ func (s *Container) CheckInstanceNameIfExist(instanceName string) bool {
 func (s *Container) InstanceDISelfCheck() error {
 	for k := range s.poolMap {
 		if err := s.DiSelfCheck(k); err != nil {
+			s.c.Log.Errorf("instance self check passed failed => %v, error: %v", k, err)
 			return err
 		}
+		s.c.Log.Infof("instance self check passed => %v", "di self check", k)
 	}
 	return nil
 }
@@ -77,7 +79,7 @@ func (s *Container) GetInstance(instanceName string, injectingMap map[string]int
 	}
 	pool, ok := s.poolMap[instanceName]
 	if !ok {
-		s.c.Log.Fatal(fmt.Sprintf("instance name %v not exist", instanceName))
+		s.c.Log.Fatalf("instance not exist in container => %v", instanceName)
 	}
 	service := pool.Get()
 	injectingMap[instanceName] = service
@@ -88,7 +90,7 @@ func (s *Container) GetInstance(instanceName string, injectingMap map[string]int
 func (s *Container) Release(instanceName string, instance interface{}) {
 	instancePool, ok := s.poolMap[instanceName]
 	if !ok {
-		s.c.Log.Errorf("instance name %v release failed, not exist in container", instanceName)
+		s.c.Log.Errorf("instance release failed => %v, not exist in container", instanceName)
 		return
 	}
 	DiFree(s.c.Log, instance)

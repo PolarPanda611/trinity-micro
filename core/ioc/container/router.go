@@ -1,7 +1,6 @@
 package container
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -69,8 +68,8 @@ func NewRequestMapping(method string, path string, funcName string, handlers ...
 
 func InitInstance(container *Container) {
 	for _, instance := range _bootingInstances {
-		log.Printf("register instance: instanceName: %v ", instance.instanceName)
 		container.RegisterInstance(instance.instanceName, instance.instancePool)
+		container.c.Log.Infof("instance registered => %v ", instance.instanceName)
 	}
 	container.InstanceDISelfCheck()
 }
@@ -87,11 +86,12 @@ func RouterSelfCheck(container *Container) {
 				}
 				injectMapPool.Put(injectMap)
 			}()
-			currentMethod, ok := reflect.TypeOf(instance).MethodByName(requestMap.funcName)
+			_, ok := reflect.TypeOf(instance).MethodByName(requestMap.funcName)
 			if !ok {
-				panic(fmt.Sprintf("instance %v method %v not exist ", controller.instanceName, currentMethod))
+				container.c.Log.Fatalf("instance router self check failed => %v.%v , func %v not exist ", controller.instanceName, requestMap.funcName, requestMap.funcName)
+				continue
 			}
-
+			container.c.Log.Infof("instance router self check passed => %v.%v ", controller.instanceName, requestMap.funcName)
 		}
 	}
 
@@ -111,11 +111,11 @@ func DIHandler(container *Container, instanceName string, funcName string) func(
 	return httpx.DIParamMethod(currentMethod, instance)
 }
 
-type Mux interface {
+type mux interface {
 	MethodFunc(method, pattern string, handlerFn http.HandlerFunc)
 }
 
-func DIRouter(r Mux, container *Container) {
+func DIRouter(r mux, container *Container) {
 	InitInstance(container)
 	RouterSelfCheck(container)
 	// register router

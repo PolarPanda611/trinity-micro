@@ -23,7 +23,7 @@ func (s *Container) DiSelfCheck(instanceName string) error {
 	for index := 0; index < instanceVal.NumField(); index++ {
 		objectName := encodeObjectName(instance, index)
 		if _, exist := getTagByName(instance, index, CONTAINER); !exist {
-			s.c.Log.Debugf("self check : instanceName: %v index: %v objectName: %v, the container tag not exist, skip inject", instanceName, index, objectName)
+			s.c.Log.Debugf("%20v: instanceName: %v index: %v objectName: %v, the container tag not exist, skip inject", "di self check", instanceName, index, objectName)
 			continue
 		}
 		resourceName, exist := getStringTagFromContainer(instance, index, RESOURCE)
@@ -92,7 +92,7 @@ func DiFree(log logrus.FieldLogger, dest interface{}) {
 		for index := 0; index < destVal.NumField(); index++ {
 			objectName := encodeObjectName(dest, index)
 			if _, exist := getTagByName(dest, index, CONTAINER); !exist {
-				log.Debugf("DI free: objectName: %v, the container tag not exist, skiped", objectName)
+				log.Debugf("objectName di free skipped => %v, container not exist", objectName)
 				continue
 			}
 			val := destVal.Field(index)

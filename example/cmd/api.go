@@ -1,13 +1,16 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+	"strconv"
 	"time"
+	"trinity-micro/core/httpx"
 	"trinity-micro/core/ioc/container"
 	_ "trinity-micro/example/internal/adapter/controller"
 	"trinity-micro/example/internal/infra/containers"
+	"trinity-micro/example/internal/infra/logx"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
@@ -27,30 +30,11 @@ func init() {
 }
 
 func RunAPI(cmd *cobra.Command, args []string) {
-	log.Printf("%v:%v service starting ", projectName, apiCmdString)
-	containers.Container.InstanceDISelfCheck()
+	logx.Logger.Infof("%v:%v service starting ", projectName, apiCmdString)
 	r := chi.NewRouter()
 	container.DIRouter(r, containers.Container)
-	// r.Get("/test/user2", func(w http.ResponseWriter, r *http.Request) {
-	// 	res := httpx.Response{
-	// 		Status: 200,
-	// 		Result: "haha",
-	// 	}
-	// 	b, _ := json.Marshal(res)
-	// 	w.WriteHeader(200)
-	// 	w.Write(b)
-	// })
-	// r.Get("/test/user2/{id}", func(w http.ResponseWriter, r *http.Request) {
-	// 	idStr := chi.URLParam(r, "id")
-	// 	id, _ := strconv.Atoi(idStr)
-	// 	res := httpx.Response{
-	// 		Status: 200,
-	// 		Result: id,
-	// 	}
-	// 	b, _ := json.Marshal(res)
-	// 	w.WriteHeader(200)
-	// 	w.Write(b)
-	// })
+	r.Get("/test/user2", test1)
+	r.Get("/test/user2/{id}", test2)
 	s := &http.Server{
 		Addr:              ":3000",
 		Handler:           r,
@@ -61,4 +45,25 @@ func RunAPI(cmd *cobra.Command, args []string) {
 		MaxHeaderBytes:    5 * 1024 * 1024,
 	}
 	s.ListenAndServe()
+}
+
+func test1(w http.ResponseWriter, r *http.Request) {
+	res := httpx.Response{
+		Status: 200,
+		Result: "haha",
+	}
+	b, _ := json.Marshal(res)
+	w.WriteHeader(200)
+	w.Write(b)
+}
+func test2(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, _ := strconv.Atoi(idStr)
+	res := httpx.Response{
+		Status: 200,
+		Result: id,
+	}
+	b, _ := json.Marshal(res)
+	w.WriteHeader(200)
+	w.Write(b)
 }
