@@ -8,46 +8,48 @@ go run main.go api
 
 
 ```
-% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2
-Running 30s test @ http://127.0.0.1:3000/test/user2
+% wrk -t12 -c100 -d10s http://127.0.0.1:3000/benchmark/simple_raw
+Running 10s test @ http://127.0.0.1:3000/benchmark/simple_raw
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     2.01ms    1.94ms  36.12ms   87.43%
-    Req/Sec     4.62k   607.41     6.44k    71.31%
-  1656779 requests in 30.01s, 232.26MB read
-Requests/sec:  55200.45
-Transfer/sec:      7.74MB
+    Latency   781.37us  442.87us   7.51ms   77.68%
+    Req/Sec    10.53k   709.86    12.45k    65.98%
+  1268705 requests in 10.10s, 181.49MB read
+Requests/sec: 125611.65
+Transfer/sec:     17.97MB
 
-% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user 
-Running 30s test @ http://127.0.0.1:3000/test/user
+
+%  wrk -t12 -c100 -d10s http://127.0.0.1:3000/benchmark/simple          
+Running 10s test @ http://127.0.0.1:3000/benchmark/simple
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     2.59ms    3.26ms  59.83ms   86.39%
-    Req/Sec     4.87k   577.65     6.74k    69.33%
-  1746373 requests in 30.01s, 229.84MB read
-Requests/sec:  58188.78
-Transfer/sec:      7.66MB
+    Latency     0.94ms  848.65us  15.40ms   85.68%
+    Req/Sec     9.83k     1.12k   12.75k    74.26%
+  1184808 requests in 10.10s, 169.49MB read
+Requests/sec: 117297.24
+Transfer/sec:     16.78MB
 ```
 
 
 ```
-% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user2/1
-Running 30s test @ http://127.0.0.1:3000/test/user2/1
+%  wrk -t12 -c100 -d10s http://127.0.0.1:3000/benchmark/path_param_raw/1
+Running 10s test @ http://127.0.0.1:3000/benchmark/path_param_raw/1
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   824.07us  471.40us  20.96ms   81.33%
-    Req/Sec     9.97k   830.33    13.31k    69.35%
-  3584082 requests in 30.10s, 533.22MB read
-Requests/sec: 119068.61
-Transfer/sec:     17.71MB
+    Latency   795.47us  487.06us  11.88ms   78.66%
+    Req/Sec    10.44k     0.87k   12.67k    64.60%
+  1259132 requests in 10.10s, 176.52MB read
+Requests/sec: 124669.29
+Transfer/sec:     17.48MB
 
-% wrk -t12 -c100 -d30s http://127.0.0.1:3000/test/user/1 
-Running 30s test @ http://127.0.0.1:3000/test/user/1
+%  wrk -t12 -c100 -d10s http://127.0.0.1:3000/benchmark/path_param/1    
+Running 10s test @ http://127.0.0.1:3000/benchmark/path_param/1
   12 threads and 100 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     0.93ms  797.68us  20.86ms   84.70%
-    Req/Sec     9.61k   633.72    12.09k    70.32%
-  3452473 requests in 30.10s, 484.00MB read
-Requests/sec: 114694.49
-Transfer/sec:     16.08MB
+    Latency   835.88us  701.02us  22.89ms   90.41%
+    Req/Sec    10.11k   646.21    12.74k    73.33%
+  1207872 requests in 10.01s, 202.74MB read
+  Non-2xx or 3xx responses: 1207872
+Requests/sec: 120619.89
+Transfer/sec:     20.25MB
 ```

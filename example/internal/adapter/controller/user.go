@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"sync"
+	"trinity-micro/core/httpx"
 	"trinity-micro/core/ioc/container"
 	"trinity-micro/example/internal/domain/dto"
 	"trinity-micro/example/internal/domain/service"
@@ -39,10 +40,29 @@ func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequ
 }
 
 func (c *userControllerImpl) RawGetUserByID(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
-	w.Write([]byte("haha"))
+	req := dto.GetUserByIDRequest{}
+	if err := httpx.Parse(r, &req); err != nil {
+		httpx.HttpResponseErr(w, err)
+		return
+	}
+	res, err := c.UserSrv.GetUserID(r.Context(), &req)
+	if err != nil {
+		httpx.HttpResponseErr(w, err)
+		return
+	}
+	httpx.HttpResponse(w, 200, res)
 }
 
 func (c *userControllerImpl) RawListUser(w http.ResponseWriter, r *http.Request) {
-
+	req := dto.ListUserRequest{}
+	if err := httpx.Parse(r, &req); err != nil {
+		httpx.HttpResponseErr(w, err)
+		return
+	}
+	res, err := c.UserSrv.ListUser(r.Context(), &req)
+	if err != nil {
+		httpx.HttpResponseErr(w, err)
+		return
+	}
+	httpx.HttpResponse(w, 200, res)
 }

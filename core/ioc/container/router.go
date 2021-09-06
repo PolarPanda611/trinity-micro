@@ -2,7 +2,6 @@ package container
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"path/filepath"
 	"reflect"
@@ -181,7 +180,7 @@ func DIRouter(r mux, container *Container) {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
 			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
-			log.Printf("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
+			container.c.Log.Infof("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
 

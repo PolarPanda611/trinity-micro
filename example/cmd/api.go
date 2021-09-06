@@ -33,8 +33,10 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	logx.Logger.Infof("%v:%v service starting ", projectName, apiCmdString)
 	r := chi.NewRouter()
 	container.DIRouter(r, containers.Container)
-	r.Get("/test/user2", test1)
-	r.Get("/test/user2/{id}", test2)
+	r.Get("/benchmark/simple_raw", SimpleRaw)
+	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
+	r.Get("/benchmark/path_param_raw/{id}", PathParamRaw)
+	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/path_param_raw/{id}", "SimpleRaw")
 	s := &http.Server{
 		Addr:              ":3000",
 		Handler:           r,
@@ -47,16 +49,17 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	s.ListenAndServe()
 }
 
-func test1(w http.ResponseWriter, r *http.Request) {
+func SimpleRaw(w http.ResponseWriter, r *http.Request) {
 	res := httpx.Response{
 		Status: 200,
-		Result: "haha",
+		Result: "ok",
 	}
 	b, _ := json.Marshal(res)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(b)
 }
-func test2(w http.ResponseWriter, r *http.Request) {
+func PathParamRaw(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, _ := strconv.Atoi(idStr)
 	res := httpx.Response{
@@ -64,6 +67,7 @@ func test2(w http.ResponseWriter, r *http.Request) {
 		Result: id,
 	}
 	b, _ := json.Marshal(res)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(b)
 }
