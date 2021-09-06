@@ -40,6 +40,7 @@ type RequestMap struct {
 	subPath  string
 	funcName string
 	handlers []http.Handler
+	isRaw    bool
 }
 
 func RegisterController(rootPath string, instanceName string, requestMaps ...RequestMap) {
@@ -65,6 +66,17 @@ func NewRequestMapping(method string, path string, funcName string, handlers ...
 		subPath:  path,
 		funcName: funcName,
 		handlers: handlers,
+		isRaw:    false,
+	}
+}
+
+func NewRawRequestMapping(method string, path string, funcName string, handlers ...http.Handler) RequestMap {
+	return RequestMap{
+		method:   method,
+		subPath:  path,
+		funcName: funcName,
+		handlers: handlers,
+		isRaw:    true,
 	}
 }
 
@@ -100,7 +112,7 @@ func RouterSelfCheck(container *Container) {
 }
 
 // multi instance di handler
-func DIHandler(container *Container, instanceName string, funcName string) func(w http.ResponseWriter, r *http.Request) {
+func DIHandler(container *Container, instanceName string, funcName string, isRaw bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(context.WithValue(r.Context(), httpx.HTTPRequest, r))
 		r = r.WithContext(context.WithValue(r.Context(), httpx.HTTPStatus, new(int)))
@@ -121,6 +133,9 @@ func DIHandler(container *Container, instanceName string, funcName string) func(
 			return
 		}
 		responseValue := currentMethod.Func.Call(inParams)
+		if isRaw {
+			return
+		}
 		switch len(responseValue) {
 		case 0:
 			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), nil)
@@ -165,7 +180,7 @@ func DIRouter(r mux, container *Container) {
 	for _, controller := range _bootingControllers {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
-			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName))
+			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
 			log.Printf("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}

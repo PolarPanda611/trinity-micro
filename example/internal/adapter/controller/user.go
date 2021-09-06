@@ -18,7 +18,7 @@ func init() {
 	container.RegisterController("/test", "UserController",
 		container.NewRequestMapping("GET", "/user", "ListUser"),
 		container.NewRequestMapping("GET", "/user/{id}", "GetUserByID"),
-		container.NewRequestMapping("GET", "/testuser", "TestUser"),
+		container.NewRawRequestMapping("GET", "/testuser", "TestUser"),
 	)
 }
 
