@@ -17,30 +17,26 @@ func init() {
 }
 
 type UserService interface {
-	GetUserID(ctx context.Context, id uint64) (*dto.GetUserResponse, error)
-	ListUser(ctx context.Context, req *dto.ListUserRequest) ([]dto.GetUserResponse, error)
+	GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error)
+	ListUser(ctx context.Context, req *dto.ListUserRequest) (dto.ListUserResponse, error)
 }
 
 type userServiceImpl struct {
 	UserRepo repository.UserRepository `container:"autowire:true;resource:UserRepository"`
 }
 
-func (s *userServiceImpl) GetUserID(ctx context.Context, id uint64) (*dto.GetUserResponse, error) {
-	user, err := s.UserRepo.GetUserByID(ctx, id)
+func (s *userServiceImpl) GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error) {
+	user, err := s.UserRepo.GetUserByID(ctx, req.CurrentUserID, req.ID)
 	if err != nil {
 		return nil, err
 	}
-	return dto.NewGetUserResponse(user), nil
+	return dto.NewGetUserByIDResponse(user), nil
 }
 
-func (s *userServiceImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) ([]dto.GetUserResponse, error) {
-	users, err := s.UserRepo.ListUser(ctx)
+func (s *userServiceImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (dto.ListUserResponse, error) {
+	users, err := s.UserRepo.ListUser(ctx, req.CurrentUserID)
 	if err != nil {
 		return nil, err
 	}
-	res := make([]dto.GetUserResponse, len(users))
-	for i, v := range users {
-		res[i] = *dto.NewGetUserResponse(&v)
-	}
-	return res, nil
+	return dto.NewListUserResponse(users), nil
 }

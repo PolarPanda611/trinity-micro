@@ -16,10 +16,13 @@ func init() {
 		},
 	}
 	container.RegisterInstance("UserController", UserControllerPool)
-	container.RegisterController("/test", "UserController",
-		container.NewRequestMapping("GET", "/user", "ListUser"),
-		container.NewRequestMapping("GET", "/user/{id}", "GetUserByID"),
-		container.NewRawRequestMapping("GET", "/testuser", "TestUser"),
+	container.RegisterController("/diparam", "UserController",
+		container.NewRequestMapping("GET", "/users", "ListUser"),
+		container.NewRequestMapping("GET", "/users/{id}", "GetUserByID"),
+	)
+	container.RegisterController("/raw", "UserController",
+		container.NewRequestMapping("GET", "/users", "ListUser"),
+		container.NewRequestMapping("GET", "/users/{id}", "GetUserByID"),
 	)
 }
 
@@ -27,17 +30,19 @@ type userControllerImpl struct {
 	UserSrv service.UserService `container:"autowire:true;resource:UserService"`
 }
 
-func (c *userControllerImpl) GetUserByID(ctx context.Context, Args struct {
-	ID uint64 `path_param:"id"`
-}) (*dto.GetUserResponse, error) {
-	return c.UserSrv.GetUserID(ctx, uint64(Args.ID))
+func (c *userControllerImpl) GetUserByID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error) {
+	return c.UserSrv.GetUserID(ctx, req)
 }
 
-func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) ([]dto.GetUserResponse, error) {
+func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (dto.ListUserResponse, error) {
 	return c.UserSrv.ListUser(ctx, req)
 }
 
-func (c *userControllerImpl) TestUser(w http.ResponseWriter, r *http.Request) {
+func (c *userControllerImpl) RawGetUserByID(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write([]byte("haha"))
+}
+
+func (c *userControllerImpl) RawListUser(w http.ResponseWriter, r *http.Request) {
+
 }

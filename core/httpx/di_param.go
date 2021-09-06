@@ -120,7 +120,12 @@ func InvokeMethod(handlerType reflect.Type, r *http.Request, instance interface{
 				InParams[i] = reflect.ValueOf(instance)
 				break
 			}
-			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported ptr ")
+			targetValue := reflect.New(inType.Elem()).Interface()
+			if err := Parse(r, targetValue); err != nil {
+				return nil, err
+			}
+			InParams[i] = reflect.ValueOf(targetValue)
+			// return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported ptr ")
 		default:
 			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported type ")
 		}
