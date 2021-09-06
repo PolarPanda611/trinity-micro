@@ -49,6 +49,30 @@ func StringConverter(word string, destVal *reflect.Value) error {
 			return err
 		}
 		destVal.Set(reflect.ValueOf(paramVal))
+	case reflect.Uint:
+		paramVal, err := strconv.Atoi(word)
+		if err != nil {
+			return err
+		}
+		destVal.Set(reflect.ValueOf(uint(paramVal)))
+	case reflect.Uint64:
+		paramVal, err := strconv.ParseUint(word, 10, 64)
+		if err != nil {
+			return err
+		}
+		destVal.Set(reflect.ValueOf(paramVal))
+	case reflect.Uint32:
+		paramVal, err := strconv.ParseUint(word, 10, 32)
+		if err != nil {
+			return err
+		}
+		destVal.Set(reflect.ValueOf(int32(paramVal)))
+	case reflect.Uint16:
+		paramVal, err := strconv.ParseUint(word, 10, 16)
+		if err != nil {
+			return err
+		}
+		destVal.Set(reflect.ValueOf(int16(paramVal)))
 	case reflect.Float32:
 		paramVal, err := strconv.ParseFloat(word, 32)
 		if err != nil {

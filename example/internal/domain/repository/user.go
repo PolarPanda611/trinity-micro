@@ -3,8 +3,18 @@ package repository
 import (
 	"context"
 	"fmt"
+	"sync"
+	"trinity-micro/core/ioc/container"
 	"trinity-micro/example/internal/domain/model"
 )
+
+func init() {
+	container.RegisterInstance("UserRepository", &sync.Pool{
+		New: func() interface{} {
+			return new(userRepositoryImpl)
+		},
+	})
+}
 
 type UserRepository interface {
 	GetUserByID(ctx context.Context, id uint64) (*model.User, error)

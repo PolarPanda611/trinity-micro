@@ -3,9 +3,10 @@ package controller
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"sync"
 	"trinity-micro/core/ioc/container"
+	"trinity-micro/example/internal/domain/dto"
+	"trinity-micro/example/internal/domain/service"
 )
 
 func init() {
@@ -23,19 +24,17 @@ func init() {
 }
 
 type userControllerImpl struct {
-	// userSrv service.UserService `container:"autowire:true"`
+	UserSrv service.UserService `container:"autowire:true;resource:UserService"`
 }
 
 func (c *userControllerImpl) GetUserByID(ctx context.Context, Args struct {
-	ID int `path_param:"id"`
-}) int {
-	return Args.ID
+	ID uint64 `path_param:"id"`
+}) (*dto.GetUserResponse, error) {
+	return c.UserSrv.GetUserID(ctx, uint64(Args.ID))
 }
 
-func (c *userControllerImpl) ListUser(ctx context.Context, Args struct {
-	Query url.Values `query_param:""`
-}) url.Values {
-	return Args.Query
+func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) ([]dto.GetUserResponse, error) {
+	return c.UserSrv.ListUser(ctx, req)
 }
 
 func (c *userControllerImpl) TestUser(w http.ResponseWriter, r *http.Request) {
