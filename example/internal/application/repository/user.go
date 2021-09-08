@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-08-19 00:01:37
+ * @LastEditTime: 2021-09-07 10:46:17
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /trinity-micro/example/internal/application/repository/user.go
+ */
 package repository
 
 import (
@@ -6,7 +14,7 @@ import (
 	"sync"
 	"trinity-micro/core/e"
 	"trinity-micro/core/ioc/container"
-	"trinity-micro/example/internal/domain/model"
+	"trinity-micro/example/internal/application/model"
 )
 
 var (

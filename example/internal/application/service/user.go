@@ -1,11 +1,19 @@
+/*
+ * @Author: your name
+ * @Date: 2021-08-18 23:47:20
+ * @LastEditTime: 2021-09-07 10:46:08
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /trinity-micro/example/internal/application/service/user.go
+ */
 package service
 
 import (
 	"context"
 	"sync"
 	"trinity-micro/core/ioc/container"
-	"trinity-micro/example/internal/domain/dto"
-	"trinity-micro/example/internal/domain/repository"
+	"trinity-micro/example/internal/application/dto"
+	"trinity-micro/example/internal/application/repository"
 )
 
 func init() {

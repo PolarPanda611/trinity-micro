@@ -1,3 +1,11 @@
+/*
+ * @Author: Daniel TAN
+ * @Date: 2021-08-18 00:34:11
+ * @LastEditors: Daniel TAN
+ * @LastEditTime: 2021-09-09 00:08:47
+ * @FilePath: /trinity-micro/example/cmd/batch.go
+ * @Description:
+ */
 package cmd
 
 import (

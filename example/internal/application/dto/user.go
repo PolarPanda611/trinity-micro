@@ -1,6 +1,14 @@
+/*
+ * @Author: your name
+ * @Date: 2021-08-18 23:45:12
+ * @LastEditTime: 2021-09-07 10:46:25
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /trinity-micro/example/internal/application/dto/user.go
+ */
 package dto
 
-import "trinity-micro/example/internal/domain/model"
+import "trinity-micro/example/internal/application/model"
 
 type GetUserByIDRequest struct {
 	CurrentUserID uint64 `header_param:"current_user_id"`

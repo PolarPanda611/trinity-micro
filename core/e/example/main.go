@@ -1,3 +1,11 @@
+/*
+ * @Author: Daniel TAN
+ * @Date: 2021-09-03 12:24:12
+ * @LastEditors: Daniel TAN
+ * @LastEditTime: 2021-09-09 00:08:32
+ * @FilePath: /trinity-micro/core/e/example/main.go
+ * @Description:
+ */
 package main
 
 import (
@@ -43,7 +51,7 @@ func main() {
 	{
 		// example 3 :
 		// db unknown error
-		dbError := gorm.ErrInvalidSQL
+		dbError := gorm.Err
 		err := e.NewError(e.Error, e.ErrInternalServer, "unexpected db error ", dbError)
 		e.Logging(l, err)
 		logResponse(err)
