@@ -51,7 +51,7 @@ func main() {
 	{
 		// example 3 :
 		// db unknown error
-		dbError := gorm.Err
+		dbError := gorm.ErrInvalidDB
 		err := e.NewError(e.Error, e.ErrInternalServer, "unexpected db error ", dbError)
 		e.Logging(l, err)
 		logResponse(err)
