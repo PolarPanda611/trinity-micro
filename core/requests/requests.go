@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:42:48
+// LastEditTime: 2021-09-28 01:12:13
 // FilePath: /trinity-micro/core/requests/requests.go
 // Description:
 package requests
@@ -25,7 +25,7 @@ type Interceptor func(r *http.Request) error
 // Call
 // will return the err when the response code is not >=200 or <= 300
 // will decode the response to dest even it return error
-func Call(ctx context.Context, method string, url string, header map[string]string, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
+func Call(ctx context.Context, method string, url string, header http.Header, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
 	var bodyTemp io.Reader
 	if body != nil {
 		r, ok := body.(io.Reader)
@@ -33,7 +33,7 @@ func Call(ctx context.Context, method string, url string, header map[string]stri
 			bodyTemp = r
 		} else {
 			var bodyBytes []byte
-			mime := header[HeaderMime]
+			mime := header.Get(HeaderMime)
 			switch mime {
 			case MimeXML, MimeTextXML:
 				var err error
@@ -55,9 +55,7 @@ func Call(ctx context.Context, method string, url string, header map[string]stri
 	if err != nil {
 		return e.NewError(e.Info, e.ErrInvalidRequest, "new request error ", err)
 	}
-	for k, v := range header {
-		req.Header.Set(k, v)
-	}
+	req.Header = header
 	for _, interceptor := range requestInterceptors {
 		if err := interceptor(req); err != nil {
 			return e.NewError(e.Info, e.ErrInvalidRequest, "new request interceptor error ", err)
@@ -82,6 +80,12 @@ func Call(ctx context.Context, method string, url string, header map[string]stri
 		if err := xml.NewDecoder(resbody).Decode(dest); err != nil {
 			return e.NewError(e.Info, e.ErrDecodeResponseBody, "decode xml error", err)
 		}
+	case MimeTextHTML:
+		bodyHTML, err := ioutil.ReadAll(resbody)
+		if err != nil {
+			return e.NewError(e.Info, e.ErrDecodeResponseBody, "decode html error", err)
+		}
+		return e.NewError(e.Info, e.ErrDecodeResponseBody, fmt.Sprintf("decode html error, content: %v", string(bodyHTML)))
 	default:
 		if err := json.NewDecoder(resbody).Decode(dest); err != nil {
 			return e.NewError(e.Info, e.ErrDecodeResponseBody, "decode json error", err)

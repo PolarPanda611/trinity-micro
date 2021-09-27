@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:49:01
-// FilePath: /trinity-micro/core/requests/mime.go
+// LastEditTime: 2021-09-28 01:11:13
+// FilePath: /pmpm_reporting_api/Users/danieltan/Workspace/trinity-micro/core/requests/mime.go
 // Description:
 package requests
 
@@ -15,7 +15,8 @@ const (
 )
 
 const (
-	MimeJson    = "application/json"
-	MimeTextXML = "text/xml"
-	MimeXML     = "application/xml"
+	MimeJson     = "application/json"
+	MimeTextXML  = "text/xml"
+	MimeTextHTML = "text/html"
+	MimeXML      = "application/xml"
 )
