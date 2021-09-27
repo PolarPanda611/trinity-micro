@@ -4,7 +4,8 @@ import (
 	"context"
 	"net/http"
 	"reflect"
-	"trinity-micro/core/e"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
 )
 
 func DIParamHandler(handler interface{}) func(w http.ResponseWriter, r *http.Request) {

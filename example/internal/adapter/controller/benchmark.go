@@ -1,8 +1,15 @@
+// Author: Daniel TAN
+// Date: 2021-09-06 10:40:48
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:10:59
+// FilePath: /trinity-micro/example/internal/adapter/controller/benchmark.go
+// Description:
 package controller
 
 import (
 	"sync"
-	"trinity-micro/core/ioc/container"
+
+	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 )
 
 func init() {

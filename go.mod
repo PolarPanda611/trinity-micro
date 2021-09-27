@@ -1,4 +1,4 @@
-module trinity-micro
+module github.com/PolarPanda611/trinity-micro
 
 go 1.16
 

@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-08-19 00:01:37
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:11:27
+// FilePath: /trinity-micro/example/internal/application/repository/user.go
+// Description:
 /*
  * @Author: your name
  * @Date: 2021-08-19 00:01:37
@@ -12,9 +18,12 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"trinity-micro/core/e"
-	"trinity-micro/core/ioc/container"
-	"trinity-micro/example/internal/application/model"
+
+	"github.com/PolarPanda611/trinity-micro/example/internal/application/model"
+
+	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
 )
 
 var (

@@ -5,7 +5,8 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"trinity-micro/core/config/handler"
+
+	"github.com/PolarPanda611/trinity-micro/core/config/handler"
 
 	"github.com/stretchr/testify/assert"
 )

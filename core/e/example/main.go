@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-09-03 12:24:12
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:09:57
+// FilePath: /trinity-micro/core/e/example/main.go
+// Description:
 /*
  * @Author: Daniel TAN
  * @Date: 2021-09-03 12:24:12
@@ -10,7 +16,8 @@ package main
 
 import (
 	"fmt"
-	"trinity-micro/core/e"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
 
 	"log"
 

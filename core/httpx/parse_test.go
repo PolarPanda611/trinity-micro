@@ -18,7 +18,8 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-	"trinity-micro/core/requests"
+
+	"github.com/PolarPanda611/trinity-micro/core/requests"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"

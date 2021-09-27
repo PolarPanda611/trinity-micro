@@ -1,10 +1,17 @@
+// Author: Daniel TAN
+// Date: 2021-09-05 10:24:33
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:10:17
+// FilePath: /trinity-micro/core/httpx/response.go
+// Description:
 package httpx
 
 import (
 	"encoding/json"
 	"encoding/xml"
 	"net/http"
-	"trinity-micro/core/e"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
 )
 
 const (

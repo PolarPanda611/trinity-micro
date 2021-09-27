@@ -6,11 +6,16 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"trinity-micro/core/httpx"
-	"trinity-micro/core/ioc/container"
-	_ "trinity-micro/example/internal/adapter/controller"
-	"trinity-micro/example/internal/infra/containers"
-	"trinity-micro/example/internal/infra/logx"
+
+	_ "github.com/PolarPanda611/trinity-micro/example/internal/adapter/controller"
+
+	"github.com/PolarPanda611/trinity-micro/example/internal/infra/containers"
+
+	"github.com/PolarPanda611/trinity-micro/example/internal/infra/logx"
+
+	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+
+	"github.com/PolarPanda611/trinity-micro/core/httpx"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"

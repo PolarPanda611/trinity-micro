@@ -11,7 +11,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"trinity-micro/core/e"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
 
 	"github.com/sirupsen/logrus"
 )

@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-08-18 23:47:20
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:11:40
+// FilePath: /trinity-micro/example/internal/application/service/user.go
+// Description:
 /*
  * @Author: your name
  * @Date: 2021-08-18 23:47:20
@@ -11,9 +17,11 @@ package service
 import (
 	"context"
 	"sync"
-	"trinity-micro/core/ioc/container"
-	"trinity-micro/example/internal/application/dto"
-	"trinity-micro/example/internal/application/repository"
+
+	"github.com/PolarPanda611/trinity-micro/example/internal/application/dto"
+	"github.com/PolarPanda611/trinity-micro/example/internal/application/repository"
+
+	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 )
 
 func init() {

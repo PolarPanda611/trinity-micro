@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"reflect"
 	"sync"
-	"trinity-micro/core/e"
-	"trinity-micro/core/httpx"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
+	"github.com/PolarPanda611/trinity-micro/core/httpx"
 )
 
 var (

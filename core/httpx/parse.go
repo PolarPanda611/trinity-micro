@@ -16,8 +16,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
-	"trinity-micro/core/e"
-	"trinity-micro/core/utils"
+
+	"github.com/PolarPanda611/trinity-micro/core/e"
+	"github.com/PolarPanda611/trinity-micro/core/utils"
 
 	"github.com/go-chi/chi/v5"
 )

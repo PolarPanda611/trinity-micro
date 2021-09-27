@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:39:51
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-09 00:40:52
+// LastEditTime: 2021-09-27 23:11:06
 // FilePath: /trinity-micro/example/internal/adapter/controller/user.go
 // Description:
 package controller
@@ -10,10 +10,14 @@ import (
 	"context"
 	"net/http"
 	"sync"
-	"trinity-micro/core/httpx"
-	"trinity-micro/core/ioc/container"
-	"trinity-micro/example/internal/application/dto"
-	"trinity-micro/example/internal/application/service"
+
+	"github.com/PolarPanda611/trinity-micro/example/internal/application/service"
+
+	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+
+	"github.com/PolarPanda611/trinity-micro/example/internal/application/dto"
+
+	"github.com/PolarPanda611/trinity-micro/core/httpx"
 )
 
 func init() {

@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-08-18 23:45:12
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:11:21
+// FilePath: /trinity-micro/example/internal/application/dto/user.go
+// Description:
 /*
  * @Author: your name
  * @Date: 2021-08-18 23:45:12
@@ -8,7 +14,7 @@
  */
 package dto
 
-import "trinity-micro/example/internal/application/model"
+import "github.com/PolarPanda611/trinity-micro/example/internal/application/model"
 
 type GetUserByIDRequest struct {
 	CurrentUserID uint64 `header_param:"current_user_id"`
