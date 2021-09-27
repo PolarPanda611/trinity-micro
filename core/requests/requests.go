@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-09-03 12:24:12
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-09-27 23:42:48
+// FilePath: /trinity-micro/core/requests/requests.go
+// Description:
 package requests
 
 import (
@@ -10,30 +16,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/PolarPanda611/trinity-micro/core/e"
-
-	"github.com/sirupsen/logrus"
 )
-
-type HttpClient interface {
-	Call(ctx context.Context, logger logrus.FieldLogger, method string, url string, header map[string]string, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error
-}
-
-type clientImpl struct {
-	logger logrus.FieldLogger
-}
 
 type Interceptor func(r *http.Request) error
 
-// Request client
+// Call
 // will return the err when the response code is not >=200 or <= 300
 // will decode the response to dest even it return error
-func (c *clientImpl) Call(ctx context.Context, logger logrus.FieldLogger, method string, url string, header map[string]string, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
-	now := time.Now()
-	logger.Infof("HttpClient.Call start , method: %v , url: %v ", method, url)
-	defer logger.Infof("HttpClient.Call ended ,method: %v, url: %v, duration: %v ", method, url, time.Since(now))
+func Call(ctx context.Context, method string, url string, header map[string]string, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
 	var bodyTemp io.Reader
 	if body != nil {
 		r, ok := body.(io.Reader)
@@ -56,7 +48,6 @@ func (c *clientImpl) Call(ctx context.Context, logger logrus.FieldLogger, method
 					return e.NewError(e.Info, e.ErrInvalidRequest, "encode json error", err)
 				}
 			}
-			logger.Infof("HttpClient.Call request body: %v ", string(bodyBytes))
 			bodyTemp = bytes.NewReader(bodyBytes)
 		}
 	}
@@ -82,7 +73,6 @@ func (c *clientImpl) Call(ctx context.Context, logger logrus.FieldLogger, method
 	if err != nil {
 		return e.NewError(e.Error, e.ErrReadResponseBody, err.Error())
 	}
-	logger.Infof("HttpClient.Call response code:%v , body: %v ", resp.StatusCode, string(bodyRes))
 
 	resbody := ioutil.NopCloser(bytes.NewReader(bodyRes))
 	mime := resp.Header.Get(HeaderMime)
@@ -103,8 +93,4 @@ func (c *clientImpl) Call(ctx context.Context, logger logrus.FieldLogger, method
 	}
 
 	return nil
-}
-
-func NewClient() HttpClient {
-	return &clientImpl{}
 }
