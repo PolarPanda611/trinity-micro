@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-28 01:12:13
+// LastEditTime: 2021-10-02 01:13:53
 // FilePath: /trinity-micro/core/requests/requests.go
 // Description:
 package requests
@@ -16,16 +16,19 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-
-	"github.com/PolarPanda611/trinity-micro/core/e"
 )
 
 type Interceptor func(r *http.Request) error
 
+var _ Requests = new(HttpRequest)
+
+type HttpRequest struct {
+}
+
 // Call
 // will return the err when the response code is not >=200 or <= 300
 // will decode the response to dest even it return error
-func Call(ctx context.Context, method string, url string, header http.Header, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
+func (r *HttpRequest) Call(ctx context.Context, method string, url string, header http.Header, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
 	var bodyTemp io.Reader
 	if body != nil {
 		r, ok := body.(io.Reader)
@@ -39,13 +42,13 @@ func Call(ctx context.Context, method string, url string, header http.Header, bo
 				var err error
 				bodyBytes, err = xml.Marshal(body)
 				if err != nil {
-					return e.NewError(e.Info, e.ErrInvalidRequest, "encode xml error", err)
+					return fmt.Errorf("encode xml error, err: %v", err)
 				}
 			default:
 				var err error
 				bodyBytes, err = json.Marshal(body)
 				if err != nil {
-					return e.NewError(e.Info, e.ErrInvalidRequest, "encode json error", err)
+					return fmt.Errorf("encode json error, err: %v", err)
 				}
 			}
 			bodyTemp = bytes.NewReader(bodyBytes)
@@ -53,23 +56,23 @@ func Call(ctx context.Context, method string, url string, header http.Header, bo
 	}
 	req, err := http.NewRequest(method, url, bodyTemp)
 	if err != nil {
-		return e.NewError(e.Info, e.ErrInvalidRequest, "new request error ", err)
+		return fmt.Errorf("new request error, err: %v", err)
 	}
 	req.Header = header
 	for _, interceptor := range requestInterceptors {
 		if err := interceptor(req); err != nil {
-			return e.NewError(e.Info, e.ErrInvalidRequest, "new request interceptor error ", err)
+			return fmt.Errorf("new request interceptor error, err: %v", err)
 		}
 	}
 	client := new(http.Client)
 	resp, err := client.Do(req)
 	if err != nil {
-		return e.NewError(e.Info, e.ErrInternalServer, "new request error ", err)
+		return fmt.Errorf("do request error, err: %v", err)
 	}
 	defer resp.Body.Close()
 	bodyRes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return e.NewError(e.Error, e.ErrReadResponseBody, err.Error())
+		return fmt.Errorf("read request body error, err: %v", err)
 	}
 
 	resbody := ioutil.NopCloser(bytes.NewReader(bodyRes))
@@ -78,22 +81,22 @@ func Call(ctx context.Context, method string, url string, header http.Header, bo
 	switch contextType {
 	case MimeTextXML, MimeXML:
 		if err := xml.NewDecoder(resbody).Decode(dest); err != nil {
-			return e.NewError(e.Info, e.ErrDecodeResponseBody, "decode xml error", err)
+			return fmt.Errorf("decode xml error, err: %v", err)
 		}
 	case MimeTextHTML:
 		bodyHTML, err := ioutil.ReadAll(resbody)
 		if err != nil {
-			return e.NewError(e.Info, e.ErrDecodeResponseBody, "decode html error", err)
+			return fmt.Errorf("read html error, err: %v", err)
 		}
-		return e.NewError(e.Info, e.ErrDecodeResponseBody, fmt.Sprintf("decode html error, content: %v", string(bodyHTML)))
+		return fmt.Errorf("html unsupported decode to destination, content: %v", string(bodyHTML))
 	default:
 		if err := json.NewDecoder(resbody).Decode(dest); err != nil {
-			return e.NewError(e.Info, e.ErrDecodeResponseBody, "decode json error", err)
+			return fmt.Errorf("decode json error, err: %v", err)
 		}
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return e.NewError(e.Info, e.ErrHttpResponseCodeNotSuccess, string(bodyRes), fmt.Errorf("actual http response code: %v", resp.StatusCode))
+		return fmt.Errorf("actual http response code, actual: %v", resp.StatusCode)
 	}
 
 	return nil

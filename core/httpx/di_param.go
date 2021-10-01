@@ -17,38 +17,36 @@ func DIParamHandler(handler interface{}) func(w http.ResponseWriter, r *http.Req
 		inParams, err := InvokeHandler(handlerType, r)
 		if err != nil {
 			// e.Logging(sessionLogger, err)
-			HttpResponseErr(w, err)
+			HttpResponseErr(r.Context(), w, err)
 			return
 		}
 		responseValue := reflect.ValueOf(handler).Call(inParams)
 		switch len(responseValue) {
 		case 0:
-			HttpResponse(w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), nil)
+			HttpResponse(r.Context(), w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), nil)
 			return
 		case 1:
 			if err, ok := responseValue[0].Interface().(error); ok {
 				if err != nil {
 					// e.Logging(sessionLogger, err)
-					HttpResponseErr(w, err)
+					HttpResponseErr(r.Context(), w, err)
 					return
 				}
 			}
-			HttpResponse(w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), responseValue[0].Interface())
+			HttpResponse(r.Context(), w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), responseValue[0].Interface())
 			return
 		case 2:
 			if err, ok := responseValue[1].Interface().(error); ok {
 				if err != nil {
-					// e.Logging(sessionLogger, err)
-					HttpResponseErr(w, err)
+					HttpResponseErr(r.Context(), w, err)
 					return
 				}
 			}
-			HttpResponse(w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), responseValue[0].Interface())
+			HttpResponse(r.Context(), w, GetHTTPStatusCode(r.Context(), DefaultHttpSuccessCode), responseValue[0].Interface())
 			return
 		default:
 			err := e.NewError(e.Error, e.ErrInternalServer, "wrong res type , first out should be response value , second out should be error ")
-			// e.Logging(sessionLogger, err)
-			HttpResponseErr(w, err)
+			HttpResponseErr(r.Context(), w, err)
 			return
 		}
 

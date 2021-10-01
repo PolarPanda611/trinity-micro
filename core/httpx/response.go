@@ -1,12 +1,13 @@
 // Author: Daniel TAN
 // Date: 2021-09-05 10:24:33
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:10:17
+// LastEditTime: 2021-10-02 00:58:21
 // FilePath: /trinity-micro/core/httpx/response.go
 // Description:
 package httpx
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"net/http"
@@ -52,7 +53,7 @@ type ResponseError struct {
 	Details []string
 }
 
-func HttpResponseErr(w http.ResponseWriter, err error) {
+func HttpResponseErr(ctx context.Context, w http.ResponseWriter, err error) {
 	httpError := e.NewAPIError(err)
 	res := &Response{
 		Status: httpError.Status,
@@ -65,7 +66,7 @@ func HttpResponseErr(w http.ResponseWriter, err error) {
 	JsonResponse(w, httpError.Status, res)
 }
 
-func HttpResponse(w http.ResponseWriter, status int, res interface{}) {
+func HttpResponse(ctx context.Context, w http.ResponseWriter, status int, res interface{}) {
 	result := &Response{
 		Status: status,
 		Result: res,
