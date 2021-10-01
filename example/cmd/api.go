@@ -1,20 +1,18 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/PolarPanda611/trinity-micro"
+	"github.com/PolarPanda611/trinity-micro/example/internal/adapter/controller"
 	_ "github.com/PolarPanda611/trinity-micro/example/internal/adapter/controller"
+	"github.com/PolarPanda611/trinity-micro/example/internal/consts"
 
 	"github.com/PolarPanda611/trinity-micro/example/internal/infra/containers"
 
 	"github.com/PolarPanda611/trinity-micro/example/internal/infra/logx"
-
-	"github.com/PolarPanda611/trinity-micro/core/httpx"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
@@ -22,9 +20,9 @@ import (
 
 var (
 	apiCmd = &cobra.Command{
-		Use:   apiCmdString,
-		Short: fmt.Sprintf("starting the %v service for %v", apiCmdString, projectName),
-		Long:  fmt.Sprintf("This is the %v service for %v", apiCmdString, projectName),
+		Use:   consts.ApiCmdString,
+		Short: fmt.Sprintf("starting the %v service for %v", consts.ApiCmdString, consts.ProjectName),
+		Long:  fmt.Sprintf("This is the %v service for %v", consts.ApiCmdString, consts.ProjectName),
 		Run:   RunAPI,
 	}
 )
@@ -78,13 +76,17 @@ func init() {
 
 // @x-extension-openapi {"example": "value on a json format"}
 func RunAPI(cmd *cobra.Command, args []string) {
-	logx.Logger.Infof("%v:%v service starting ", projectName, apiCmdString)
+	logx.Logger.Infof("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
+	// infra set up
+	logx.Init()
 	containers.Init()
+
+	// init Router
 	r := chi.NewRouter()
 	trinity.DIRouter(r, containers.Container)
-	r.Get("/benchmark/simple_raw", SimpleRaw)
+	r.Get("/benchmark/simple_raw", controller.SimpleRaw)
 	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
-	r.Get("/benchmark/path_param_raw/{id}", PathParamRaw)
+	r.Get("/benchmark/path_param_raw/{id}", controller.PathParamRaw)
 	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/path_param_raw/{id}", "SimpleRaw")
 	s := &http.Server{
 		Addr:              ":3000",
@@ -98,27 +100,4 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	if err := s.ListenAndServe(); err != nil {
 		logx.Logger.Fatalf("service terminated, error:%v", err)
 	}
-}
-
-func SimpleRaw(w http.ResponseWriter, r *http.Request) {
-	res := httpx.Response{
-		Status: 200,
-		Result: "ok",
-	}
-	b, _ := json.Marshal(res)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-	w.Write(b)
-}
-func PathParamRaw(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, _ := strconv.Atoi(idStr)
-	res := httpx.Response{
-		Status: 200,
-		Result: id,
-	}
-	b, _ := json.Marshal(res)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-	w.Write(b)
 }
