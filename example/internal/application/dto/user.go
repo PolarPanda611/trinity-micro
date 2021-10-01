@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:45:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:11:21
+// LastEditTime: 2021-10-02 00:32:54
 // FilePath: /trinity-micro/example/internal/application/dto/user.go
 // Description:
 /*

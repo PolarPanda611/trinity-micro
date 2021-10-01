@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:47:20
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:11:40
+// LastEditTime: 2021-10-02 00:33:35
 // FilePath: /trinity-micro/example/internal/application/service/user.go
 // Description:
 /*
@@ -18,14 +18,13 @@ import (
 	"context"
 	"sync"
 
+	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/internal/application/repository"
-
-	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 )
 
 func init() {
-	container.RegisterInstance("UserService", &sync.Pool{
+	trinity.RegisterInstance("UserService", &sync.Pool{
 		New: func() interface{} {
 			return new(userServiceImpl)
 		},

@@ -64,6 +64,10 @@ func (s *Container) RegisterInstance(instanceName string, instancePool *sync.Poo
 	s.poolTypeMap[instanceName] = t
 }
 
+func (s *Container) Log() logrus.FieldLogger {
+	return s.c.Log
+}
+
 // CheckInstanceNameIfExist
 // check instance name if exist
 // if exist , return true

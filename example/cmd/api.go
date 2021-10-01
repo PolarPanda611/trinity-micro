@@ -7,13 +7,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/PolarPanda611/trinity-micro"
 	_ "github.com/PolarPanda611/trinity-micro/example/internal/adapter/controller"
 
 	"github.com/PolarPanda611/trinity-micro/example/internal/infra/containers"
 
 	"github.com/PolarPanda611/trinity-micro/example/internal/infra/logx"
-
-	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
 
@@ -80,8 +79,9 @@ func init() {
 // @x-extension-openapi {"example": "value on a json format"}
 func RunAPI(cmd *cobra.Command, args []string) {
 	logx.Logger.Infof("%v:%v service starting ", projectName, apiCmdString)
+	containers.Init()
 	r := chi.NewRouter()
-	container.DIRouter(r, containers.Container)
+	trinity.DIRouter(r, containers.Container)
 	r.Get("/benchmark/simple_raw", SimpleRaw)
 	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
 	r.Get("/benchmark/path_param_raw/{id}", PathParamRaw)

@@ -1,4 +1,10 @@
-package container
+// Author: Daniel TAN
+// Date: 2021-10-02 00:36:09
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-10-02 00:36:36
+// FilePath: /trinity-micro/di_router.go
+// Description:
+package trinity
 
 import (
 	"context"
@@ -9,14 +15,7 @@ import (
 
 	"github.com/PolarPanda611/trinity-micro/core/e"
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
-)
-
-var (
-	injectMapPool = &sync.Pool{
-		New: func() interface{} {
-			return make(map[string]interface{})
-		},
-	}
+	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 )
 
 type bootingController struct {
@@ -31,8 +30,18 @@ type bootingInstance struct {
 }
 
 var (
+	// booting buffer params
 	_bootingControllers []bootingController
 	_bootingInstances   []bootingInstance
+)
+
+var (
+	// booting cache
+	injectMapPool = &sync.Pool{
+		New: func() interface{} {
+			return make(map[string]interface{})
+		},
+	}
 )
 
 type RequestMap struct {
@@ -80,15 +89,15 @@ func NewRawRequestMapping(method string, path string, funcName string, handlers 
 	}
 }
 
-func InitInstance(container *Container) {
+func InitInstance(container *container.Container) {
 	for _, instance := range _bootingInstances {
 		container.RegisterInstance(instance.instanceName, instance.instancePool)
-		container.c.Log.Infof("instance registered => %v ", instance.instanceName)
+		container.Log().Infof("instance registered => %v ", instance.instanceName)
 	}
 	container.InstanceDISelfCheck()
 }
 
-func RouterSelfCheck(container *Container) {
+func RouterSelfCheck(container *container.Container) {
 	for _, controller := range _bootingControllers {
 		for _, requestMap := range controller.requestMaps {
 			injectMap := injectMapPool.Get().(map[string]interface{})
@@ -102,17 +111,17 @@ func RouterSelfCheck(container *Container) {
 			}()
 			_, ok := reflect.TypeOf(instance).MethodByName(requestMap.funcName)
 			if !ok {
-				container.c.Log.Fatalf("instance router self check failed => %v.%v , func %v not exist ", controller.instanceName, requestMap.funcName, requestMap.funcName)
+				container.Log().Fatalf("instance router self check failed => %v.%v , func %v not exist ", controller.instanceName, requestMap.funcName, requestMap.funcName)
 				continue
 			}
-			container.c.Log.Infof("instance router self check passed => %v.%v ", controller.instanceName, requestMap.funcName)
+			container.Log().Infof("instance router self check passed => %v.%v ", controller.instanceName, requestMap.funcName)
 		}
 	}
 
 }
 
 // multi instance di handler
-func DIHandler(container *Container, instanceName string, funcName string, isRaw bool) func(w http.ResponseWriter, r *http.Request) {
+func DIHandler(container *container.Container, instanceName string, funcName string, isRaw bool) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(context.WithValue(r.Context(), httpx.HTTPRequest, r))
 		r = r.WithContext(context.WithValue(r.Context(), httpx.HTTPStatus, new(int)))
@@ -173,7 +182,7 @@ type mux interface {
 	MethodFunc(method, pattern string, handlerFn http.HandlerFunc)
 }
 
-func DIRouter(r mux, container *Container) {
+func DIRouter(r mux, container *container.Container) {
 	InitInstance(container)
 	RouterSelfCheck(container)
 	// register router
@@ -181,7 +190,7 @@ func DIRouter(r mux, container *Container) {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
 			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
-			container.c.Log.Infof("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
+			container.Log().Infof("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
 

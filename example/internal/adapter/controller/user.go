@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:39:51
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:11:06
+// LastEditTime: 2021-10-02 00:32:26
 // FilePath: /trinity-micro/example/internal/adapter/controller/user.go
 // Description:
 package controller
@@ -11,9 +11,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/internal/application/service"
-
-	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 
 	"github.com/PolarPanda611/trinity-micro/example/internal/application/dto"
 
@@ -26,14 +25,14 @@ func init() {
 			return new(userControllerImpl)
 		},
 	}
-	container.RegisterInstance("UserController", UserControllerPool)
-	container.RegisterController("/diparam", "UserController",
-		container.NewRequestMapping("GET", "/users", "ListUser"),
-		container.NewRequestMapping("GET", "/users/{id}", "GetUserByID"),
+	trinity.RegisterInstance("UserController", UserControllerPool)
+	trinity.RegisterController("/diparam", "UserController",
+		trinity.NewRequestMapping("GET", "/users", "ListUser"),
+		trinity.NewRequestMapping("GET", "/users/{id}", "GetUserByID"),
 	)
-	container.RegisterController("/raw", "UserController",
-		container.NewRequestMapping("GET", "/users", "ListUser"),
-		container.NewRequestMapping("GET", "/users/{id}", "GetUserByID"),
+	trinity.RegisterController("/raw", "UserController",
+		trinity.NewRequestMapping("GET", "/users", "ListUser"),
+		trinity.NewRequestMapping("GET", "/users/{id}", "GetUserByID"),
 	)
 }
 

@@ -3,10 +3,12 @@ package config
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 
 	"github.com/PolarPanda611/trinity-micro/core/config/handler"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,6 +34,19 @@ var (
 	ctx                = context.Background()
 	configor   *Config = Default(&envHandler)
 )
+
+type mockHandler struct {
+	mock.Mock
+}
+
+func (m *mockHandler) Get(ctx context.Context, key string) (string, error) {
+	args := m.Called(ctx, key)
+	return args.String(0), args.Error(1)
+}
+func (m *mockHandler) Exists(ctx context.Context, key string) (bool, error) {
+	args := m.Called(ctx, key)
+	return args.Bool(0), args.Error(1)
+}
 
 type structConfig struct {
 	Debug bool   `config:"default:true"`
@@ -69,6 +84,14 @@ type testSuccessCase struct {
 	SfullDefault structConfig `config:"default:{\"Debug\":false,\"Host\":\"test struct\"}"`
 	S            structConfig
 	SPtr         *structConfig2
+	TestSkip     int         `config:"-"`
+	TestSkip2    string      `config:"-"`
+	TestSkip3    interface{} `config:"-"`
+}
+
+type negativeTestCase struct {
+	BrokenJson    structConfig `config:"name:broken"`
+	BrokenDefault structConfig `config:"name:brokendefault;default:"`
 }
 
 func TestLoadDefault(t *testing.T) {
@@ -77,6 +100,10 @@ func TestLoadDefault(t *testing.T) {
 	os.Setenv("Host2", "Host2xxxx")
 	os.Setenv("Debug2", "false")
 	os.Setenv("sfull", "{\"Debug\":false,\"Host\":\"test struct\"}")
+	os.Setenv("broken", "{\"")
+	os.Setenv("TestSkip1", "1235")
+	os.Setenv("TestSkip2", "1235")
+	os.Setenv("TestSkip3", "1235")
 
 	var c testSuccessCase
 	err := Default(&envHandler).Load(ctx, &c)
@@ -105,6 +132,34 @@ func TestLoadDefault(t *testing.T) {
 	assert.Equal(t, "Host2xxxx", c.SPtr.Host2, "wrong loop host bool")
 	assert.Equal(t, structConfig{Debug: false, Host: "test struct"}, c.Sfull, "wrong Sfull")
 	assert.Equal(t, structConfig{Debug: false, Host: "test struct"}, c.SfullDefault, "wrong Sfull")
+	assert.Equal(t, 0, c.TestSkip, "wrong TestSkip")
+	assert.Equal(t, "", c.TestSkip2, "wrong TestSkip2")
+	assert.Equal(t, nil, c.TestSkip3, "wrong TestSkip3")
+
+	var negativeTestConfig negativeTestCase
+	configLoader := Default(&envHandler)
+	assert.NotEqual(t, configLoader.Load(ctx, &negativeTestConfig), nil)
+	os.Setenv("broken", "{}")
+	assert.NotEqual(t, configLoader.Load(ctx, &negativeTestConfig), nil)
+
+	mockH := &mockHandler{}
+	expectErr := fmt.Errorf("test handlers")
+	type testConfig struct {
+		GoPath string `config:"name:GOPATHTEST;default:1"`
+	}
+	c2 := testConfig{}
+	mockH.On("Exists", ctx, "GOPATHTEST").Once().Return(false, nil)
+	Default(mockH).Load(ctx, &c2)
+	assert.Equal(t, c2.GoPath, "1")
+	mockH.On("Exists", ctx, "GOPATHTEST").Once().Return(false, expectErr)
+	assert.Equal(t, Default(mockH).Load(ctx, &c2), expectErr)
+	mockH.On("Exists", ctx, "GOPATHTEST").Once().Return(true, nil)
+	mockH.On("Get", ctx, "GOPATHTEST").Once().Return("nonono", nil)
+	Default(mockH).Load(ctx, &c2)
+	assert.Equal(t, c2.GoPath, "nonono")
+	mockH.On("Exists", ctx, "GOPATHTEST").Once().Return(true, nil)
+	mockH.On("Get", ctx, "GOPATHTEST").Once().Return("", expectErr)
+	assert.Equal(t, Default(mockH).Load(ctx, &c2), expectErr)
 }
 
 type TestFailedPointerCase struct {
@@ -129,9 +184,10 @@ func TestTestMandantory(t *testing.T) {
 
 func TestDecodeParamConfig(t *testing.T) {
 	config1 := "name:GOENV;default:test;optional:false;"
+	defaultValue := "test"
 	assert.Equal(t, &paramConfig{
 		name:         "GOENV",
-		defaultValue: "test",
+		defaultValue: &defaultValue,
 		optional:     false,
 		exist:        true,
 	}, decodeParamConfig(config1), "wrong decode config1")
@@ -139,7 +195,7 @@ func TestDecodeParamConfig(t *testing.T) {
 	config2 := "name:GOENV;default:test;optional:true;"
 	assert.Equal(t, &paramConfig{
 		name:         "GOENV",
-		defaultValue: "test",
+		defaultValue: &defaultValue,
 		optional:     true,
 		exist:        true,
 	}, decodeParamConfig(config2), "wrong decode config2")
@@ -147,15 +203,16 @@ func TestDecodeParamConfig(t *testing.T) {
 	config3 := "   name:GOENV;  default:test;optional:true;"
 	assert.Equal(t, &paramConfig{
 		name:         "GOENV",
-		defaultValue: "test",
+		defaultValue: &defaultValue,
 		optional:     true,
 		exist:        true,
 	}, decodeParamConfig(config3), "wrong decode config3")
 
 	config4 := "   name:GoEnv;  default:1;optional:true"
+	defaultVal := "1"
 	assert.Equal(t, &paramConfig{
 		name:         "GoEnv",
-		defaultValue: "1",
+		defaultValue: &defaultVal,
 		optional:     true,
 		exist:        true,
 	}, decodeParamConfig(config4), "wrong decode config4")

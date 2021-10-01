@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:34:44
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:11:53
+// LastEditTime: 2021-10-02 00:34:01
 // FilePath: /trinity-micro/example/internal/infra/containers/containers.go
 // Description:
 package containers
@@ -14,7 +14,7 @@ import (
 
 var Container *container.Container
 
-func init() {
+func Init() {
 	Container = container.NewContainer(container.Config{
 		AutoWired: true,
 		Log:       logx.Logger,

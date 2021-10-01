@@ -3,10 +3,13 @@ package config
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
+)
+
+const (
+	skipFlag = "-"
 )
 
 // Option config option for config
@@ -45,7 +48,7 @@ func (p *param) getFullName() string {
 	return encodeObjectName(p.parent, p.index)
 }
 
-func (p *param) getDefaultValue() string {
+func (p *param) getDefaultValue() *string {
 	return p.config.defaultValue
 }
 
@@ -61,14 +64,12 @@ func (p *param) hasConfig() bool {
 }
 
 func (p *param) setValue(value string) error {
-	if value != "" {
-		p.sourceValue = value
-		defaultValue, err := typeConverter(value, p.getValue().Type())
-		if err != nil {
-			return err
-		}
-		p.getValue().Set(reflect.ValueOf(defaultValue))
+	p.sourceValue = value
+	defaultValue, err := typeConverter(value, p.getValue().Type())
+	if err != nil {
+		return err
 	}
+	p.getValue().Set(reflect.ValueOf(defaultValue))
 	return nil
 }
 
@@ -93,9 +94,9 @@ func (p *param) validate() error {
 }
 
 type paramConfig struct {
-	name         string // default name
-	defaultValue string // default value
-	optional     bool   // optional
+	name         string  // default name
+	defaultValue *string // default value
+	optional     bool    // optional
 	exist        bool
 }
 
@@ -112,10 +113,13 @@ func (c *Config) Load(ctx context.Context, dest interface{}) error {
 		return fmt.Errorf("Config %v should be addressable", reflect.TypeOf(dest))
 	}
 	for index := 0; index < instanceVal.NumField(); index++ {
-		param := newParam(dest, instanceVal, index, decodeParamConfig(GetTagsValue(dest, index, "config")))
-		objectName := param.getFullName()
+		// if skip the config
+		configTagValue := GetTagsValue(dest, index, "config")
+		if configTagValue == skipFlag {
+			continue
+		}
+		param := newParam(dest, instanceVal, index, decodeParamConfig(configTagValue))
 		if !param.canSet() {
-			log.Printf("Config Loader : %v cannot set , skipped  ", objectName)
 			continue
 		}
 		switch param.getValue().Type().Kind() {
@@ -145,12 +149,22 @@ func (c *Config) Load(ctx context.Context, dest interface{}) error {
 			}
 		}
 		// Load default Value
-		if err := param.setValue(param.getDefaultValue()); err != nil {
-			return err
+		defaultValue := param.getDefaultValue()
+		if defaultValue != nil {
+			if err := param.setValue(*defaultValue); err != nil {
+				return err
+			}
 		}
 
 		// Load handler
 		for _, v := range c.handlers {
+			exists, err := v.Exists(ctx, param.getKeyName())
+			if err != nil {
+				return err
+			}
+			if !exists {
+				continue
+			}
 			value, err := v.Get(ctx, param.getKeyName())
 			if err != nil {
 				return err
@@ -213,7 +227,7 @@ func decodeParamConfig(config string) *paramConfig {
 			case "name":
 				p.name = value
 			case "default":
-				p.defaultValue = value
+				p.defaultValue = &value
 			case "optional":
 				p.optional, _ = strconv.ParseBool(value)
 			}

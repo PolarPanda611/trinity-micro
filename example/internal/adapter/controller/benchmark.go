@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-06 10:40:48
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-09-27 23:10:59
+// LastEditTime: 2021-10-02 00:32:10
 // FilePath: /trinity-micro/example/internal/adapter/controller/benchmark.go
 // Description:
 package controller
@@ -9,7 +9,7 @@ package controller
 import (
 	"sync"
 
-	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+	"github.com/PolarPanda611/trinity-micro"
 )
 
 func init() {
@@ -18,10 +18,10 @@ func init() {
 			return new(benchmarkControllerImpl)
 		},
 	}
-	container.RegisterInstance("BenchmarkController", BenchmarkControllerPool)
-	container.RegisterController("/benchmark", "BenchmarkController",
-		container.NewRequestMapping("GET", "/simple", "Simple"),
-		container.NewRequestMapping("GET", "path_param_raw/{id}", "PathParam"),
+	trinity.RegisterInstance("BenchmarkController", BenchmarkControllerPool)
+	trinity.RegisterController("/benchmark", "BenchmarkController",
+		trinity.NewRequestMapping("GET", "/simple", "Simple"),
+		trinity.NewRequestMapping("GET", "path_param_raw/{id}", "PathParam"),
 	)
 }
 
