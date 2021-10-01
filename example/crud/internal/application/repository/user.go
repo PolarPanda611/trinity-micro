@@ -1,17 +1,9 @@
 // Author: Daniel TAN
 // Date: 2021-08-19 00:01:37
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:33:26
-// FilePath: /trinity-micro/example/internal/application/repository/user.go
+// LastEditTime: 2021-10-02 01:25:33
+// FilePath: /trinity-micro/example/crud/internal/application/repository/user.go
 // Description:
-/*
- * @Author: your name
- * @Date: 2021-08-19 00:01:37
- * @LastEditTime: 2021-09-07 10:46:17
- * @LastEditors: your name
- * @Description: In User Settings Edit
- * @FilePath: /trinity-micro/example/internal/application/repository/user.go
- */
 package repository
 
 import (
@@ -20,7 +12,7 @@ import (
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro"
-	"github.com/PolarPanda611/trinity-micro/example/internal/application/model"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
 
 	"github.com/PolarPanda611/trinity-micro/core/e"
 )

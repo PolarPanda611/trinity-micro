@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 00:49:54
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:49:55
-// FilePath: /trinity-micro/example/internal/adapter/controller/raw.go
+// LastEditTime: 2021-10-02 01:23:42
+// FilePath: /trinity-micro/example/benchmark/internal/adapter/controller/raw.go
 // Description:
 package controller
 

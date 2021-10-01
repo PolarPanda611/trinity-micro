@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 00:36:09
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:36:36
+// LastEditTime: 2021-10-02 01:29:02
 // FilePath: /trinity-micro/di_router.go
 // Description:
 package trinity
@@ -138,7 +138,7 @@ func DIHandler(container *container.Container, instanceName string, funcName str
 		inParams, err := httpx.InvokeMethod(currentMethod.Type, r, instance, w)
 		if err != nil {
 			// e.Logging(sessionLogger, err)
-			httpx.HttpResponseErr(w, err)
+			httpx.HttpResponseErr(r.Context(), w, err)
 			return
 		}
 		responseValue := currentMethod.Func.Call(inParams)
@@ -147,32 +147,32 @@ func DIHandler(container *container.Container, instanceName string, funcName str
 		}
 		switch len(responseValue) {
 		case 0:
-			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), nil)
+			httpx.HttpResponse(r.Context(), w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), nil)
 			return
 		case 1:
 			if err, ok := responseValue[0].Interface().(error); ok {
 				if err != nil {
 					// e.Logging(sessionLogger, err)
-					httpx.HttpResponseErr(w, err)
+					httpx.HttpResponseErr(r.Context(), w, err)
 					return
 				}
 			}
-			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), responseValue[0].Interface())
+			httpx.HttpResponse(r.Context(), w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), responseValue[0].Interface())
 			return
 		case 2:
 			if err, ok := responseValue[1].Interface().(error); ok {
 				if err != nil {
 					// e.Logging(sessionLogger, err)
-					httpx.HttpResponseErr(w, err)
+					httpx.HttpResponseErr(r.Context(), w, err)
 					return
 				}
 			}
-			httpx.HttpResponse(w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), responseValue[0].Interface())
+			httpx.HttpResponse(r.Context(), w, httpx.GetHTTPStatusCode(r.Context(), httpx.DefaultHttpSuccessCode), responseValue[0].Interface())
 			return
 		default:
 			err := e.NewError(e.Error, e.ErrInternalServer, "wrong res type , first out should be response value , second out should be error ")
 			// e.Logging(sessionLogger, err)
-			httpx.HttpResponseErr(w, err)
+			httpx.HttpResponseErr(r.Context(), w, err)
 			return
 		}
 	}

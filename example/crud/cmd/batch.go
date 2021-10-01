@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 00:34:11
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:47:24
-// FilePath: /trinity-micro/example/cmd/batch.go
+// LastEditTime: 2021-10-02 01:24:18
+// FilePath: /trinity-micro/example/crud/cmd/batch.go
 // Description:
 /*
  * @Author: Daniel TAN
@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/PolarPanda611/trinity-micro/example/internal/consts"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"
 	"github.com/spf13/cobra"
 )
 

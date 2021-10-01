@@ -1,7 +1,7 @@
 # trinity-micro
 
 ```
-cd example/
+cd example/benchmark
 go run main.go api
 ```
 

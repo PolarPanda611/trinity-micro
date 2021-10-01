@@ -1,13 +1,13 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:34:44
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:42:35
-// FilePath: /trinity-micro/example/internal/infra/containers/containers.go
+// LastEditTime: 2021-10-02 01:23:16
+// FilePath: /trinity-micro/example/benchmark/internal/infra/containers/containers.go
 // Description:
 package containers
 
 import (
-	"github.com/PolarPanda611/trinity-micro/example/internal/infra/logx"
+	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/infra/logx"
 
 	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
 )

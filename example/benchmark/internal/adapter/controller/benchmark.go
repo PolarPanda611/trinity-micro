@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-09-06 10:40:48
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:32:10
-// FilePath: /trinity-micro/example/internal/adapter/controller/benchmark.go
+// LastEditTime: 2021-10-02 01:23:38
+// FilePath: /trinity-micro/example/benchmark/internal/adapter/controller/benchmark.go
 // Description:
 package controller
 

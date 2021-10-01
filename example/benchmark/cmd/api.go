@@ -2,17 +2,18 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/PolarPanda611/trinity-micro"
-	"github.com/PolarPanda611/trinity-micro/example/internal/adapter/controller"
-	_ "github.com/PolarPanda611/trinity-micro/example/internal/adapter/controller"
-	"github.com/PolarPanda611/trinity-micro/example/internal/consts"
+	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/adapter/controller"
+	_ "github.com/PolarPanda611/trinity-micro/example/benchmark/internal/adapter/controller"
+	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/consts"
 
-	"github.com/PolarPanda611/trinity-micro/example/internal/infra/containers"
+	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/infra/containers"
 
-	"github.com/PolarPanda611/trinity-micro/example/internal/infra/logx"
+	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/infra/logx"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
@@ -76,7 +77,7 @@ func init() {
 
 // @x-extension-openapi {"example": "value on a json format"}
 func RunAPI(cmd *cobra.Command, args []string) {
-	logx.Logger.Infof("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
+	log.Printf("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
 	// infra set up
 	logx.Init()
 	containers.Init()

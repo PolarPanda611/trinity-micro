@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 00:07:41
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:47:02
-// FilePath: /trinity-micro/example/cmd/root.go
+// LastEditTime: 2021-10-02 01:24:27
+// FilePath: /trinity-micro/example/crud/cmd/root.go
 // Description:
 package cmd
 
@@ -11,7 +11,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/PolarPanda611/trinity-micro/example/internal/consts"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"
 	"github.com/spf13/cobra"
 )
 
