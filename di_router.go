@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 00:36:09
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 23:19:33
+// LastEditTime: 2021-10-02 23:28:39
 // FilePath: /trinity-micro/di_router.go
 // Description:
 package trinity
@@ -83,10 +83,10 @@ func NewRawRequestMapping(method string, path string, funcName string, handlers 
 func InitInstance(container *container.Container) {
 	for _, instance := range _bootingInstances {
 		container.RegisterInstance(instance.instanceName, instance.instancePool)
-		container.Log().Infof("%8v %10v %7v => %v ", "instance", "register", "success", instance.instanceName)
+		container.Log().Infof("%-8v %-10v %-7v => %v ", "instance", "register", "success", instance.instanceName)
 	}
 	if err := container.InstanceDISelfCheck(); err != nil {
-		container.Log().Fatalf("%10v %10v %7v, err: %v", "instance", "self-check", "failed", err)
+		container.Log().Fatalf("%-10v %-10v %-7v, err: %v", "instance", "self-check", "failed", err)
 	}
 }
 
@@ -104,10 +104,10 @@ func RouterSelfCheck(container *container.Container) {
 			}()
 			_, ok := reflect.TypeOf(instance).MethodByName(requestMap.funcName)
 			if !ok {
-				container.Log().Fatalf("%8v %10v %7v => %v.%v , func %v not exist ", "router", "self-check", "failed", controller.instanceName, requestMap.funcName, requestMap.funcName)
+				container.Log().Fatalf("%-8v %-10v %-7v => %v.%v , func %v not exist ", "router", "self-check", "failed", controller.instanceName, requestMap.funcName, requestMap.funcName)
 				continue
 			}
-			container.Log().Infof("%8v %10v %7v => %v.%v ", "router", "self-check", "success", controller.instanceName, requestMap.funcName)
+			container.Log().Infof("%-8v %-10v %-7v => %v.%v ", "router", "self-check", "success", controller.instanceName, requestMap.funcName)
 		}
 	}
 
@@ -186,7 +186,7 @@ func DIRouter(r mux, container *container.Container) {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
 			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
-			container.Log().Infof("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
+			container.Log().Infof("%-8v register handler: %-6s %-30s => %v.%v ", "router", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
 }
