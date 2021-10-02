@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 01:20:48
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 01:41:07
+// LastEditTime: 2021-10-02 22:48:38
 // FilePath: /trinity-micro/example/crud/cmd/api.go
 // Description:
 package cmd
@@ -9,18 +9,13 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"time"
 
 	"github.com/PolarPanda611/trinity-micro"
 	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/controller"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"
 
-	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/containers"
-
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/logx"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
 )
 
@@ -85,21 +80,11 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	log.Printf("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
 	// infra set up
 	logx.Init()
-	containers.Init()
 
-	// init Router
-	r := chi.NewRouter()
-	trinity.DIRouter(r, containers.Container)
-	s := &http.Server{
-		Addr:              ":3000",
-		Handler:           r,
-		ReadTimeout:       time.Duration(10) * time.Second,
-		ReadHeaderTimeout: time.Duration(10) * time.Second,
-		WriteTimeout:      time.Duration(10) * time.Second,
-		IdleTimeout:       time.Duration(10) * time.Second,
-		MaxHeaderBytes:    5 * 1024 * 1024,
-	}
-	if err := s.ListenAndServe(); err != nil {
+	t := trinity.Default()
+	t.DIRouter()
+	if err := t.Start(); err != nil {
 		logx.Logger.Fatalf("service terminated, error:%v", err)
 	}
+
 }

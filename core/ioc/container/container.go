@@ -82,10 +82,10 @@ func (s *Container) CheckInstanceNameIfExist(instanceName string) bool {
 func (s *Container) InstanceDISelfCheck() error {
 	for k := range s.poolMap {
 		if err := s.DiSelfCheck(k); err != nil {
-			s.c.Log.Errorf("instance self check passed failed => %v, error: %v", k, err)
+			s.c.Log.Errorf("%8v %10v %7v => %v, error: %v", "instance", "self-check", "failed", k, err)
 			return err
 		}
-		s.c.Log.Infof("instance self check passed => %v", "di self check", k)
+		s.c.Log.Infof("%8v %10v %7v => %v", "instance", "self-check", "success", k)
 	}
 	return nil
 }

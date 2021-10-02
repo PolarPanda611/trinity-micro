@@ -1,21 +1,22 @@
+// Author: Daniel TAN
+// Date: 2021-08-18 00:22:08
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-10-02 22:51:58
+// FilePath: /trinity-micro/example/benchmark/cmd/api.go
+// Description:
 package cmd
 
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"time"
 
 	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/adapter/controller"
 	_ "github.com/PolarPanda611/trinity-micro/example/benchmark/internal/adapter/controller"
 	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/consts"
 
-	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/infra/containers"
-
 	"github.com/PolarPanda611/trinity-micro/example/benchmark/internal/infra/logx"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
 )
 
@@ -80,25 +81,15 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	log.Printf("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
 	// infra set up
 	logx.Init()
-	containers.Init()
 
 	// init Router
-	r := chi.NewRouter()
-	trinity.DIRouter(r, containers.Container)
-	r.Get("/benchmark/simple_raw", controller.SimpleRaw)
+	t := trinity.Default()
+	t.DIRouter()
+	t.Get("/benchmark/simple_raw", controller.SimpleRaw)
 	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
-	r.Get("/benchmark/path_param_raw/{id}", controller.PathParamRaw)
+	t.Get("/benchmark/path_param_raw/{id}", controller.PathParamRaw)
 	logx.Logger.Infof("request mapping: method: %-6s %-30s => handler: %v ", "GET", "/benchmark/path_param_raw/{id}", "SimpleRaw")
-	s := &http.Server{
-		Addr:              ":3000",
-		Handler:           r,
-		ReadTimeout:       time.Duration(10) * time.Second,
-		ReadHeaderTimeout: time.Duration(10) * time.Second,
-		WriteTimeout:      time.Duration(10) * time.Second,
-		IdleTimeout:       time.Duration(10) * time.Second,
-		MaxHeaderBytes:    5 * 1024 * 1024,
-	}
-	if err := s.ListenAndServe(); err != nil {
+	if err := t.Start(":3000"); err != nil {
 		logx.Logger.Fatalf("service terminated, error:%v", err)
 	}
 }

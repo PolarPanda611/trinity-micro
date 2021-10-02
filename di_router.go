@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 00:36:09
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 01:29:02
+// LastEditTime: 2021-10-02 23:19:33
 // FilePath: /trinity-micro/di_router.go
 // Description:
 package trinity
@@ -32,7 +32,6 @@ type bootingInstance struct {
 var (
 	// booting buffer params
 	_bootingControllers []bootingController
-	_bootingInstances   []bootingInstance
 )
 
 var (
@@ -61,14 +60,6 @@ func RegisterController(rootPath string, instanceName string, requestMaps ...Req
 	_bootingControllers = append(_bootingControllers, newController)
 }
 
-func RegisterInstance(instanceName string, instancePool *sync.Pool) {
-	newInstance := bootingInstance{
-		instanceName: instanceName,
-		instancePool: instancePool,
-	}
-	_bootingInstances = append(_bootingInstances, newInstance)
-}
-
 func NewRequestMapping(method string, path string, funcName string, handlers ...http.Handler) RequestMap {
 	return RequestMap{
 		method:   method,
@@ -92,9 +83,11 @@ func NewRawRequestMapping(method string, path string, funcName string, handlers 
 func InitInstance(container *container.Container) {
 	for _, instance := range _bootingInstances {
 		container.RegisterInstance(instance.instanceName, instance.instancePool)
-		container.Log().Infof("instance registered => %v ", instance.instanceName)
+		container.Log().Infof("%8v %10v %7v => %v ", "instance", "register", "success", instance.instanceName)
 	}
-	container.InstanceDISelfCheck()
+	if err := container.InstanceDISelfCheck(); err != nil {
+		container.Log().Fatalf("%10v %10v %7v, err: %v", "instance", "self-check", "failed", err)
+	}
 }
 
 func RouterSelfCheck(container *container.Container) {
@@ -111,10 +104,10 @@ func RouterSelfCheck(container *container.Container) {
 			}()
 			_, ok := reflect.TypeOf(instance).MethodByName(requestMap.funcName)
 			if !ok {
-				container.Log().Fatalf("instance router self check failed => %v.%v , func %v not exist ", controller.instanceName, requestMap.funcName, requestMap.funcName)
+				container.Log().Fatalf("%8v %10v %7v => %v.%v , func %v not exist ", "router", "self-check", "failed", controller.instanceName, requestMap.funcName, requestMap.funcName)
 				continue
 			}
-			container.Log().Infof("instance router self check passed => %v.%v ", controller.instanceName, requestMap.funcName)
+			container.Log().Infof("%8v %10v %7v => %v.%v ", "router", "self-check", "success", controller.instanceName, requestMap.funcName)
 		}
 	}
 
@@ -134,7 +127,10 @@ func DIHandler(container *container.Container, instanceName string, funcName str
 			}
 			injectMapPool.Put(injectMap)
 		}()
-		currentMethod, _ := reflect.TypeOf(instance).MethodByName(funcName)
+		currentMethod, ok := reflect.TypeOf(instance).MethodByName(funcName)
+		if !ok {
+			panic("method not registered, please ensure your run thee RouterSelfCheck before start your service")
+		}
 		inParams, err := httpx.InvokeMethod(currentMethod.Type, r, instance, w)
 		if err != nil {
 			// e.Logging(sessionLogger, err)
@@ -178,8 +174,8 @@ func DIHandler(container *container.Container, instanceName string, funcName str
 	}
 }
 
-type mux interface {
-	MethodFunc(method, pattern string, handlerFn http.HandlerFunc)
+func (t *Trinity) DIRouter() {
+	DIRouter(t.mux, t.container)
 }
 
 func DIRouter(r mux, container *container.Container) {
@@ -193,5 +189,4 @@ func DIRouter(r mux, container *container.Container) {
 			container.Log().Infof("request mapping: method: %-6s %-30s => handler: %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
-
 }
