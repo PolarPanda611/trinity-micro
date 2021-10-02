@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 00:22:08
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 23:28:28
+// LastEditTime: 2021-10-02 23:31:30
 // FilePath: /trinity-micro/example/benchmark/cmd/api.go
 // Description:
 package cmd
@@ -86,9 +86,9 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	t := trinity.Default()
 	t.DIRouter()
 	t.Get("/benchmark/simple_raw", controller.SimpleRaw)
-	logx.Logger.Infof("%-8v register handler: %-6s %-30s => %v ", "router", "GET", "/benchmark/simple_raw", "SimpleRaw")
+	logx.Logger.Infof("router register handler: %-6s %-30s => %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
 	t.Get("/benchmark/path_param_raw/{id}", controller.PathParamRaw)
-	logx.Logger.Infof("%-8v register handler: %-6s %-30s => %v ", "router", "GET", "/benchmark/path_param_raw/{id}", "SimpleRaw")
+	logx.Logger.Infof("router register handler: %-6s %-30s => %v ", "GET", "/benchmark/path_param_raw/{id}", "SimpleRaw")
 	if err := t.Start(":3000"); err != nil {
 		logx.Logger.Fatalf("service terminated, error:%v", err)
 	}

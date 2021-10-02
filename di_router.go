@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 00:36:09
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 23:28:39
+// LastEditTime: 2021-10-02 23:31:22
 // FilePath: /trinity-micro/di_router.go
 // Description:
 package trinity
@@ -186,7 +186,7 @@ func DIRouter(r mux, container *container.Container) {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
 			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
-			container.Log().Infof("%-8v register handler: %-6s %-30s => %v.%v ", "router", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
+			container.Log().Infof("router register handler: %-6s %-30s => %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
 }
