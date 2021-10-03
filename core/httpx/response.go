@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-05 10:24:33
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 00:58:21
+// LastEditTime: 2021-10-03 14:56:13
 // FilePath: /trinity-micro/core/httpx/response.go
 // Description:
 package httpx
@@ -48,9 +48,9 @@ type Response struct {
 }
 
 type ResponseError struct {
-	Code    int
-	Message string
-	Details []string
+	Code    int      `json:"code"`
+	Message string   `json:"message"`
+	Details []string `json:"details"`
 }
 
 func HttpResponseErr(ctx context.Context, w http.ResponseWriter, err error) {

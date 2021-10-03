@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 00:36:09
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 23:31:22
+// LastEditTime: 2021-10-04 00:16:28
 // FilePath: /trinity-micro/di_router.go
 // Description:
 package trinity
@@ -24,11 +24,6 @@ type bootingController struct {
 	requestMaps  []RequestMap
 }
 
-type bootingInstance struct {
-	instanceName string
-	instancePool *sync.Pool
-}
-
 var (
 	// booting buffer params
 	_bootingControllers []bootingController
@@ -47,7 +42,7 @@ type RequestMap struct {
 	method   string
 	subPath  string
 	funcName string
-	handlers []http.Handler
+	handlers []func(http.Handler) http.Handler
 	isRaw    bool
 }
 
@@ -60,7 +55,7 @@ func RegisterController(rootPath string, instanceName string, requestMaps ...Req
 	_bootingControllers = append(_bootingControllers, newController)
 }
 
-func NewRequestMapping(method string, path string, funcName string, handlers ...http.Handler) RequestMap {
+func NewRequestMapping(method string, path string, funcName string, handlers ...func(http.Handler) http.Handler) RequestMap {
 	return RequestMap{
 		method:   method,
 		subPath:  path,
@@ -70,7 +65,7 @@ func NewRequestMapping(method string, path string, funcName string, handlers ...
 	}
 }
 
-func NewRawRequestMapping(method string, path string, funcName string, handlers ...http.Handler) RequestMap {
+func NewRawRequestMapping(method string, path string, funcName string, handlers ...func(http.Handler) http.Handler) RequestMap {
 	return RequestMap{
 		method:   method,
 		subPath:  path,
@@ -185,7 +180,12 @@ func DIRouter(r mux, container *container.Container) {
 	for _, controller := range _bootingControllers {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
-			r.MethodFunc(requestMapping.method, urlPath, DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
+			h := http.HandlerFunc(DIHandler(container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
+
+			for _, f := range requestMapping.handlers {
+				h = f(h).ServeHTTP
+			}
+			r.MethodFunc(requestMapping.method, urlPath, h)
 			container.Log().Infof("router register handler: %-6s %-30s => %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}

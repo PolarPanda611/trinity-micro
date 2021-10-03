@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-18 23:45:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 01:25:27
+// LastEditTime: 2021-10-04 00:25:21
 // FilePath: /trinity-micro/example/crud/internal/application/dto/user.go
 // Description:
 /*
@@ -17,6 +17,7 @@ package dto
 import "github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
 
 type GetUserByIDRequest struct {
+	*CommonRequest
 	CurrentUserID uint64 `header_param:"current_user_id"`
 	ID            uint64 `path_param:"id"`
 }
@@ -24,6 +25,7 @@ type GetUserByIDRequest struct {
 type GetUserByIDResponse UserDTO
 
 type ListUserRequest struct {
+	*CommonRequest
 	Username      string `query_param:"username"`
 	CurrentUserID uint64 `header_param:"current_user_id"`
 }

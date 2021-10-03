@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-06 00:13:18
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 23:22:58
+// LastEditTime: 2021-10-04 01:37:32
 // FilePath: /trinity-micro/trinity.go
 // Description:
 package trinity
@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+	"github.com/PolarPanda611/trinity-micro/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -31,23 +32,32 @@ type Trinity struct {
 }
 
 func Default() *Trinity {
-	return &Trinity{
-		mux:         _defaultRouter,
-		FieldLogger: _defaultLog,
-		container: container.NewContainer(container.Config{
-			AutoWired: true,
-			Log:       _defaultLog,
-		}),
-	}
+	return New(Config{})
 }
 
-func New(c Config) *Trinity {
+func New(c ...Config) *Trinity {
+	if len(c) > 0 {
+		if c[0].Mux == nil {
+			c[0].Mux = _defaultRouter
+		}
+		if c[0].Logger == nil {
+			c[0].Logger = _defaultLog
+		}
+	} else {
+		c = append(c, Config{
+			Mux:    _defaultRouter,
+			Logger: _defaultLog,
+		})
+	}
+
+	c[0].Mux.Use(middleware.Recovery(_defaultLog))
+	c[0].Mux.Use(middleware.InitLogger(c[0].Logger))
 	return &Trinity{
-		mux:         c.Mux,
-		FieldLogger: c.Logger,
+		mux:         c[0].Mux,
+		FieldLogger: c[0].Logger,
 		container: container.NewContainer(container.Config{
 			AutoWired: true,
-			Log:       c.Logger,
+			Log:       c[0].Logger,
 		}),
 	}
 }

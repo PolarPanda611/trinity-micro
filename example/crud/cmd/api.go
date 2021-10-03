@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 01:20:48
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 22:48:38
+// LastEditTime: 2021-10-04 01:18:10
 // FilePath: /trinity-micro/example/crud/cmd/api.go
 // Description:
 package cmd
@@ -14,7 +14,9 @@ import (
 	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/controller"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"
 
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/db"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/logx"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/tracer"
 
 	"github.com/spf13/cobra"
 )
@@ -78,12 +80,25 @@ func init() {
 // @x-extension-openapi {"example": "value on a json format"}
 func RunAPI(cmd *cobra.Command, args []string) {
 	log.Printf("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
+	serviceName := fmt.Sprintf("%v-%v", consts.ProjectName, consts.ApiCmdString)
 	// infra set up
-	logx.Init()
+	logx.Init(logx.Config{
+		ServiceName: serviceName,
+	})
 
-	t := trinity.Default()
+	db.Init(&db.Config{
+		Logger: logx.Logger,
+	})
+	tracer.Init(tracer.Config{
+		ServiceName:     serviceName,
+		JaegerAgentHost: "47.92.97.133",
+	})
+	t := trinity.New(trinity.Config{
+		Logger: logx.Logger,
+	})
+
 	t.DIRouter()
-	if err := t.Start(); err != nil {
+	if err := t.Start(":3000"); err != nil {
 		logx.Logger.Fatalf("service terminated, error:%v", err)
 	}
 

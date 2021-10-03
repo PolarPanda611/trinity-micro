@@ -131,4 +131,6 @@ const (
 	 * @Description: when read request body, met unexpected error
 	 */
 	ErrReadRequestBody errorCode = 500005
+
+	ErrPanic errorCode = 500006
 )

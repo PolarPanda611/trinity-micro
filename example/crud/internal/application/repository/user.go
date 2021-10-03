@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-08-19 00:01:37
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 01:25:33
+// LastEditTime: 2021-10-04 00:53:55
 // FilePath: /trinity-micro/example/crud/internal/application/repository/user.go
 // Description:
 package repository
@@ -13,6 +13,7 @@ import (
 
 	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/db"
 
 	"github.com/PolarPanda611/trinity-micro/core/e"
 )
@@ -66,10 +67,8 @@ func (r *userRepositoryImpl) GetUserByID(ctx context.Context, currentUserID uint
 
 func (r *userRepositoryImpl) ListUser(ctx context.Context, currentUserID uint64) ([]model.User, error) {
 	res := []model.User{}
-	for _, v := range userLake {
-		if v.CreatedBy == currentUserID {
-			res = append(res, v)
-		}
+	if err := db.FromCtx(ctx).Find(&res).Error; err != nil {
+		return nil, err
 	}
 	return res, nil
 }

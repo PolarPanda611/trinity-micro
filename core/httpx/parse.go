@@ -196,6 +196,21 @@ func Parse(r *http.Request, v interface{}) error {
 				val.Set(reflect.ValueOf(value))
 			}
 		}
+		switch val.Kind() {
+		case reflect.Struct:
+			newDest := reflect.New(val.Type()).Interface()
+			if err := Parse(r, newDest); err != nil {
+				return err
+			}
+			val.Set(reflect.ValueOf(newDest).Elem())
+		case reflect.Ptr:
+			newDest := reflect.New(val.Type().Elem()).Interface()
+			if err := Parse(r, newDest); err != nil {
+				return err
+			}
+			val.Set(reflect.ValueOf(newDest))
+		}
+
 	}
 	return nil
 }

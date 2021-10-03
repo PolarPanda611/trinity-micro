@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-09-03 12:24:12
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-10-04 01:33:42
+// FilePath: /trinity-micro/core/e/err_msg.go
+// Description:
 package e
 
 import (
@@ -50,5 +56,6 @@ var (
 		ErrDIParam:                         "DIParamError",
 		ErrReadRequestBody:                 "ReadRequestBodyError",
 		ErrDecodeRequestBody:               "DecodeRequestBodyError",
+		ErrPanic:                           "PanicError",
 	}
 )
