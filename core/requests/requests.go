@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-02 01:13:53
+// LastEditTime: 2021-10-04 02:00:08
 // FilePath: /trinity-micro/core/requests/requests.go
 // Description:
 package requests
@@ -23,6 +23,10 @@ type Interceptor func(r *http.Request) error
 var _ Requests = new(HttpRequest)
 
 type HttpRequest struct {
+}
+
+func NewRequest() Requests {
+	return &HttpRequest{}
 }
 
 // Call
