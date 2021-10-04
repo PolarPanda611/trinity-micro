@@ -87,6 +87,7 @@ func Parse(r *http.Request, v interface{}) error {
 			if err := utils.StringConverter(headerValString, &val); err != nil {
 				return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("header param %v converted error, cannot set ,err:%v ,  val : %v  ", inType.Field(index).Name, err, headerValString))
 			}
+			continue
 		}
 		// check if path param
 		if pathParam, isExist := inType.Field(index).Tag.Lookup("path_param"); isExist {
@@ -94,6 +95,7 @@ func Parse(r *http.Request, v interface{}) error {
 			if err := utils.StringConverter(paramValString, &val); err != nil {
 				return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("path param %v converted error, cannot set , err:%v  val : %v  ", inType.Field(index).Name, err, paramValString))
 			}
+			continue
 		}
 		// check if query param
 		if queryParam, isExist := inType.Field(index).Tag.Lookup("query_param"); isExist {
@@ -135,6 +137,7 @@ func Parse(r *http.Request, v interface{}) error {
 					return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, queryValString))
 				}
 			}
+			continue
 		}
 		// check if body param
 		if bodyParam, isExist := inType.Field(index).Tag.Lookup("body_param"); isExist {
@@ -195,6 +198,7 @@ func Parse(r *http.Request, v interface{}) error {
 				}
 				val.Set(reflect.ValueOf(value))
 			}
+			continue
 		}
 		switch val.Kind() {
 		case reflect.Struct:
