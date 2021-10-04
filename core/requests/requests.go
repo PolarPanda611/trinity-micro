@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-04 02:00:08
-// FilePath: /trinity-micro/core/requests/requests.go
+// LastEditTime: 2021-10-04 15:41:51
+// FilePath: /pmpm_reporting_api/Users/danieltan/Workspace/trinity-micro/core/requests/requests.go
 // Description:
 package requests
 
@@ -40,21 +40,27 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 			bodyTemp = r
 		} else {
 			var bodyBytes []byte
-			mime := header.Get(HeaderMime)
-			switch mime {
-			case MimeXML, MimeTextXML:
-				var err error
-				bodyBytes, err = xml.Marshal(body)
-				if err != nil {
-					return fmt.Errorf("encode xml error, err: %v", err)
-				}
-			default:
-				var err error
-				bodyBytes, err = json.Marshal(body)
-				if err != nil {
-					return fmt.Errorf("encode json error, err: %v", err)
+			by, ok := body.([]byte)
+			if ok {
+				bodyBytes = by
+			} else {
+				mime := header.Get(HeaderMime)
+				switch mime {
+				case MimeXML, MimeTextXML:
+					var err error
+					bodyBytes, err = xml.Marshal(body)
+					if err != nil {
+						return fmt.Errorf("encode xml error, err: %v", err)
+					}
+				default:
+					var err error
+					bodyBytes, err = json.Marshal(body)
+					if err != nil {
+						return fmt.Errorf("encode json error, err: %v", err)
+					}
 				}
 			}
+			fmt.Println(string(bodyBytes))
 			bodyTemp = bytes.NewReader(bodyBytes)
 		}
 	}
@@ -78,7 +84,7 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 	if err != nil {
 		return fmt.Errorf("read request body error, err: %v", err)
 	}
-
+	fmt.Println(string(bodyRes))
 	resbody := ioutil.NopCloser(bytes.NewReader(bodyRes))
 	mime := resp.Header.Get(HeaderMime)
 	contextType := strings.Split(mime, ";")[0]
