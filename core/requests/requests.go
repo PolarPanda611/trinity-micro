@@ -1,8 +1,8 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-04 15:41:51
-// FilePath: /pmpm_reporting_api/Users/danieltan/Workspace/trinity-micro/core/requests/requests.go
+// LastEditTime: 2021-10-18 01:52:01
+// FilePath: /trinity-micro/core/requests/requests.go
 // Description:
 package requests
 
@@ -60,7 +60,6 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 					}
 				}
 			}
-			fmt.Println(string(bodyBytes))
 			bodyTemp = bytes.NewReader(bodyBytes)
 		}
 	}
@@ -84,7 +83,6 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 	if err != nil {
 		return fmt.Errorf("read request body error, err: %v", err)
 	}
-	fmt.Println(string(bodyRes))
 	resbody := ioutil.NopCloser(bytes.NewReader(bodyRes))
 	mime := resp.Header.Get(HeaderMime)
 	contextType := strings.Split(mime, ";")[0]

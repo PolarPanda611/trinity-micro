@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 23:44:42
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-03 23:43:22
+// LastEditTime: 2021-10-18 01:15:02
 // FilePath: /trinity-micro/middleware/logger.go
 // Description:
 package middleware
@@ -62,6 +62,9 @@ func InitLogger(logger logrus.FieldLogger) func(next http.Handler) http.Handler 
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+func SetLoggerCtx(ctx context.Context, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, ContextLogger, logger)
 }
 
 // LoggerFromCtx
