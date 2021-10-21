@@ -90,7 +90,7 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 	switch contextType {
 	case MimeTextXML, MimeXML:
 		if err := xml.NewDecoder(resbody).Decode(dest); err != nil {
-			return fmt.Errorf("decode xml error, err: %v", err)
+			return fmt.Errorf("decode xml error, err: %v, source body : %v", err, string(bodyRes))
 		}
 	case MimeTextHTML:
 		bodyHTML, err := ioutil.ReadAll(resbody)
@@ -100,7 +100,7 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 		return fmt.Errorf("html unsupported decode to destination, content: %v", string(bodyHTML))
 	default:
 		if err := json.NewDecoder(resbody).Decode(dest); err != nil {
-			return fmt.Errorf("decode json error, err: %v", err)
+			return fmt.Errorf("decode json error, err: %v, source body : %v", err, string(bodyRes))
 		}
 	}
 

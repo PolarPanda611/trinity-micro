@@ -93,5 +93,4 @@ func (t *Trinity) PutInstance(insName string, injectMap map[string]interface{}, 
 		delete(injectMap, k)
 	}
 	injectMapPool.Put(injectMap)
-	t.container.Release(insName, ins)
 }
