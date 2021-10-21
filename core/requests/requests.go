@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-09-03 12:24:12
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-18 01:52:01
+// LastEditTime: 2021-10-22 01:11:57
 // FilePath: /trinity-micro/core/requests/requests.go
 // Description:
 package requests
@@ -67,6 +67,7 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 	if err != nil {
 		return fmt.Errorf("new request error, err: %v", err)
 	}
+	req.Close = true
 	req.Header = header
 	for _, interceptor := range requestInterceptors {
 		if err := interceptor(req); err != nil {
