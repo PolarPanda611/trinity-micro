@@ -1,7 +1,7 @@
 // Author: Daniel TAN
 // Date: 2021-10-02 23:44:42
 // LastEditors: Daniel TAN
-// LastEditTime: 2021-10-18 01:15:02
+// LastEditTime: 2021-11-07 21:57:31
 // FilePath: /trinity-micro/middleware/logger.go
 // Description:
 package middleware
@@ -89,7 +89,7 @@ func ChiLoggerRequest(next http.Handler) http.Handler {
 			},
 		)
 		ctxLogger.Infof("request start at %v", now.String())
-		dump, err := httputil.DumpRequest(r, true)
+		dump, err := httputil.DumpRequest(r, false)
 		if err != nil {
 			ctxLogger.Warnf("failed to DumpRequest, err: %v", err)
 		} else {
