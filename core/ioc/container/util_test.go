@@ -129,7 +129,7 @@ func TestContainer_getResourceTag(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := getStringTagFromContainer(tt.args.obj, tt.args.index, RESOURCE); got != tt.want {
+			if got, _ := getStringTagFromContainer(tt.args.obj, tt.args.index, _CONTAINER, _RESOURCE); got != tt.want {
 				t.Errorf("Container.getAutoFreeTag() = %v, want %v", got, tt.want)
 			}
 		})
@@ -151,7 +151,7 @@ func Test_decodeTag(t *testing.T) {
 			name: "1",
 			args: args{
 				value: "autowire:true",
-				key:   AUTOWIRE,
+				key:   _AUTOWIRE,
 			},
 			want:     "true",
 			wantBool: true,
@@ -160,7 +160,7 @@ func Test_decodeTag(t *testing.T) {
 			name: "2",
 			args: args{
 				value: "autowire:true;autowire:false;",
-				key:   AUTOWIRE,
+				key:   _AUTOWIRE,
 			},
 			want:     "false",
 			wantBool: true,
@@ -169,7 +169,7 @@ func Test_decodeTag(t *testing.T) {
 			name: "3",
 			args: args{
 				value: "autowire;",
-				key:   AUTOWIRE,
+				key:   _AUTOWIRE,
 			},
 			want:     "",
 			wantBool: true,
@@ -178,7 +178,7 @@ func Test_decodeTag(t *testing.T) {
 			name: "4",
 			args: args{
 				value: ":;",
-				key:   AUTOWIRE,
+				key:   _AUTOWIRE,
 			},
 			want:     "",
 			wantBool: false,

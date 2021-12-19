@@ -13,6 +13,8 @@ import (
 	"net/http"
 
 	"github.com/PolarPanda611/trinity-micro/core/e"
+	"github.com/opentracing/opentracing-go"
+	"github.com/uber/jaeger-client-go"
 )
 
 const (
@@ -70,6 +72,11 @@ func HttpResponse(ctx context.Context, w http.ResponseWriter, status int, res in
 	result := &Response{
 		Status: status,
 		Result: res,
+	}
+	x := opentracing.SpanFromContext(ctx)
+	sc, ok := x.Context().(jaeger.SpanContext)
+	if ok {
+		result.TraceID = sc.TraceID().String()
 	}
 	JsonResponse(w, status, result)
 }

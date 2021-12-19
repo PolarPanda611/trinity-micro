@@ -11,14 +11,20 @@ import (
 type Config struct {
 	// AutoWired
 	// the default value of autowired
-	AutoWired bool
-	Log       logrus.FieldLogger
+	AutoWire         bool
+	Log              logrus.FieldLogger
+	ContainerKeyword Keyword
+	AutowireKeyword  Keyword
+	ResourceKeyword  Keyword
 }
 
 var (
-	DefaultConfig = &Config{
-		AutoWired: true,
-		Log:       logrus.New(),
+	_DefaultConfig = &Config{
+		AutoWire:         true,
+		Log:              logrus.New(),
+		ContainerKeyword: _CONTAINER,
+		AutowireKeyword:  _AUTOWIRE,
+		ResourceKeyword:  _RESOURCE,
 	}
 )
 
@@ -36,9 +42,18 @@ func NewContainer(c ...Config) *Container {
 	result.poolMap = make(map[string]*sync.Pool)
 	result.poolTypeMap = make(map[string]reflect.Type)
 	if len(c) > 0 {
+		if c[0].ContainerKeyword == "" {
+			c[0].ContainerKeyword = _CONTAINER
+		}
+		if c[0].AutowireKeyword == "" {
+			c[0].AutowireKeyword = _AUTOWIRE
+		}
+		if c[0].ResourceKeyword == "" {
+			c[0].ResourceKeyword = _RESOURCE
+		}
 		result.c = &c[0]
 	} else {
-		result.c = DefaultConfig
+		result.c = _DefaultConfig
 	}
 	result.c.Log = result.c.Log.WithField("app", "container")
 	return result
@@ -62,10 +77,6 @@ func (s *Container) RegisterInstance(instanceName string, instancePool *sync.Poo
 	t := reflect.TypeOf(ins)
 	s.poolMap[instanceName] = instancePool
 	s.poolTypeMap[instanceName] = t
-}
-
-func (s *Container) Log() logrus.FieldLogger {
-	return s.c.Log
 }
 
 // CheckInstanceNameIfExist
@@ -118,14 +129,14 @@ func (s *Container) Release(instanceName string, instance interface{}) {
 	if reflect.TypeOf(instance) != s.poolTypeMap[instanceName] {
 		panic("")
 	}
-	DiFree(s.c.Log, instance)
+	s.DiFree(instance)
 	instancePool.Put(instance)
 }
 
 func (s *Container) getAutoWireTag(obj interface{}, index int) bool {
-	v, exist := getBoolTagFromContainer(obj, index, AUTOWIRE)
+	v, exist := getBoolTagFromContainer(obj, index, s.c.ContainerKeyword, s.c.AutowireKeyword)
 	if exist {
 		return v
 	}
-	return s.c.AutoWired
+	return s.c.AutoWire
 }

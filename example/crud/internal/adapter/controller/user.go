@@ -12,11 +12,11 @@ import (
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro"
+	"github.com/PolarPanda611/trinity-micro/core/dbx"
+	"github.com/PolarPanda611/trinity-micro/core/logx"
+	"github.com/PolarPanda611/trinity-micro/core/tracerx"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/service"
-	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/db"
-	"github.com/PolarPanda611/trinity-micro/example/crud/internal/middleware"
-	trinityMiddleware "github.com/PolarPanda611/trinity-micro/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -29,30 +29,28 @@ func init() {
 	trinity.RegisterInstance("UserController", UserControllerPool)
 	trinity.RegisterController("/example-api/v1/{corpID}/users", "UserController",
 		trinity.NewRequestMapping("GET", "/", "ListUser",
-			trinityMiddleware.ChiLoggerRequest,
-			middleware.ChiOpenTracer(
-				middleware.OperationNameFunc(
+			logx.ChiLoggerRequest,
+			tracerx.ChiOpenTracer(
+				tracerx.OperationNameFunc(
 					func(r *http.Request) string {
 						chiCtx := chi.RouteContext(r.Context())
 						return r.Method + "=>" + chiCtx.RoutePattern()
 					},
 				),
 			),
-			middleware.GetUserID,
-			db.SessionDB,
+			dbx.SessionDB,
 		),
 		trinity.NewRequestMapping("GET", "/{id}", "GetUserByID",
-			trinityMiddleware.ChiLoggerRequest,
-			middleware.ChiOpenTracer(
-				middleware.OperationNameFunc(
+			logx.ChiLoggerRequest,
+			tracerx.ChiOpenTracer(
+				tracerx.OperationNameFunc(
 					func(r *http.Request) string {
 						chiCtx := chi.RouteContext(r.Context())
 						return r.Method + "=>" + chiCtx.RoutePattern()
 					},
 				),
 			),
-			middleware.GetUserID,
-			db.SessionDB,
+			dbx.SessionDB,
 		),
 	)
 }

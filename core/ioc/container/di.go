@@ -3,8 +3,6 @@ package container
 import (
 	"fmt"
 	"reflect"
-
-	"github.com/sirupsen/logrus"
 )
 
 // DiSelfCheck
@@ -22,11 +20,11 @@ func (s *Container) DiSelfCheck(instanceName string) error {
 		instanceVal := reflect.Indirect(reflect.ValueOf(instance))
 		for index := 0; index < instanceVal.NumField(); index++ {
 			objectName := encodeObjectName(instance, index)
-			if _, exist := getTagByName(instance, index, CONTAINER); !exist {
+			if _, exist := getTagByName(instance, index, s.c.ContainerKeyword); !exist {
 				s.c.Log.Debugf("%20v: instanceName: %v index: %v objectName: %v, the container tag not exist, skip inject", "di self check", instanceName, index, objectName)
 				continue
 			}
-			resourceName, exist := getStringTagFromContainer(instance, index, RESOURCE)
+			resourceName, exist := getStringTagFromContainer(instance, index, s.c.ContainerKeyword, s.c.ResourceKeyword)
 			if !exist {
 				return fmt.Errorf("self check error: instanceName: %v index: %v objectName: %v, the resource tag not exist in container", instanceName, index, objectName)
 			}
@@ -73,10 +71,10 @@ func (s *Container) DiSelfCheck(instanceName string) error {
 func (s *Container) DiAllFields(dest interface{}, injectingMap map[string]interface{}) {
 	destVal := reflect.Indirect(reflect.ValueOf(dest))
 	for index := 0; index < destVal.NumField(); index++ {
-		if _, exist := getTagByName(dest, index, CONTAINER); !exist {
+		if _, exist := getTagByName(dest, index, s.c.ContainerKeyword); !exist {
 			continue
 		}
-		resourceName, _ := getStringTagFromContainer(dest, index, RESOURCE)
+		resourceName, _ := getStringTagFromContainer(dest, index, s.c.ContainerKeyword, s.c.ResourceKeyword)
 		val := destVal.Field(index)
 		if instance, exist := injectingMap[resourceName]; exist {
 			val.Set(reflect.ValueOf(instance))
@@ -87,15 +85,15 @@ func (s *Container) DiAllFields(dest interface{}, injectingMap map[string]interf
 	}
 }
 
-func DiFree(log logrus.FieldLogger, dest interface{}) {
+func (s *Container) DiFree(dest interface{}) {
 	t := reflect.TypeOf(dest)
 	switch t.Kind() {
 	case reflect.Ptr:
 		destVal := reflect.Indirect(reflect.ValueOf(dest))
 		for index := 0; index < destVal.NumField(); index++ {
 			objectName := encodeObjectName(dest, index)
-			if _, exist := getTagByName(dest, index, CONTAINER); !exist {
-				log.Debugf("objectName di free skipped => %v, container not exist", objectName)
+			if _, exist := getTagByName(dest, index, s.c.ContainerKeyword); !exist {
+				s.c.Log.Debugf("objectName di free skipped => %v, container not exist", objectName)
 				continue
 			}
 			val := destVal.Field(index)

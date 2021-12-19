@@ -6,13 +6,17 @@
 // Description:
 package model
 
+import "github.com/PolarPanda611/trinity-micro/core/dbx"
+
+func init() {
+	dbx.RegisterModel(&User{})
+}
+
 type User struct {
-	ID       uint64
+	dbx.Model
 	Username string
 	Password string
 	Email    string
 	Age      uint
 	Gender   uint
-	// Orders    []Order
-	CreatedBy uint64
 }

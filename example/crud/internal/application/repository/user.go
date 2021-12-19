@@ -8,18 +8,12 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
-	"github.com/PolarPanda611/trinity-micro/example/crud/internal/infra/db"
 
-	"github.com/PolarPanda611/trinity-micro/core/e"
-)
-
-var (
-	userLake = []model.User{}
+	"github.com/PolarPanda611/trinity-micro/core/dbx"
 )
 
 func init() {
@@ -28,46 +22,35 @@ func init() {
 			return new(userRepositoryImpl)
 		},
 	})
-	var len uint = 6
-	for len > 0 {
-		userLake = append(userLake, model.User{
-			ID:        uint64(len),
-			Username:  fmt.Sprintf("daniel_usernname_%v", len),
-			Password:  fmt.Sprintf("daniel_password_%v", len),
-			Email:     fmt.Sprintf("daniel_email_%v", len),
-			Age:       len,
-			Gender:    len,
-			CreatedBy: uint64(len/4 + 1),
-		})
-		len--
-	}
 }
 
+var _ UserRepository = new(userRepositoryImpl)
+
 type UserRepository interface {
-	GetUserByID(ctx context.Context, currentUserID uint64, ID uint64) (*model.User, error)
-	ListUser(ctx context.Context, currentUserID uint64) ([]model.User, error)
+	GetUserByID(ctx context.Context, Tenant string, ID uint64) (*model.User, error)
+	ListUser(ctx context.Context, Tenant string) ([]model.User, error)
 }
 
 type userRepositoryImpl struct {
 }
 
-func (r *userRepositoryImpl) GetUserByID(ctx context.Context, currentUserID uint64, ID uint64) (*model.User, error) {
-	for _, v := range userLake {
-		// auth check
-		if v.CreatedBy != currentUserID {
-			continue
-		}
-		if v.ID == ID {
-			return &v, nil
-		}
-
+func (r *userRepositoryImpl) GetUserByID(ctx context.Context, tenant string, ID uint64) (*model.User, error) {
+	res := &model.User{}
+	if err := dbx.FromCtx(ctx).Scopes(
+		dbx.WithTenant("test", &model.User{}),
+	).
+		Where("id = ?", ID).First(res).Error; err != nil {
+		return nil, err
 	}
-	return nil, e.NewError(e.Info, e.ErrRecordNotFound, fmt.Sprintf("user not found => id: %v", ID))
+	return res, nil
 }
 
-func (r *userRepositoryImpl) ListUser(ctx context.Context, currentUserID uint64) ([]model.User, error) {
+func (r *userRepositoryImpl) ListUser(ctx context.Context, tenant string) ([]model.User, error) {
 	res := []model.User{}
-	if err := db.FromCtx(ctx).Find(&res).Error; err != nil {
+	if err := dbx.FromCtx(ctx).Scopes(
+		dbx.WithTenant("test", &model.User{}),
+	).
+		Find(&res).Error; err != nil {
 		return nil, err
 	}
 	return res, nil

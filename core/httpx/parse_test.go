@@ -293,7 +293,7 @@ func Test_getHTTPStatusCode(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				ctx:           context.WithValue(context.Background(), HTTPStatus, getPtrInt(200)),
+				ctx:           context.WithValue(context.Background(), HttpxContext, &Context{code: 200}),
 				defaultStatus: 999,
 			},
 			want: 200,
@@ -301,7 +301,7 @@ func Test_getHTTPStatusCode(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				ctx:           context.WithValue(context.Background(), HTTPStatus, getPtrInt(123)),
+				ctx:           context.WithValue(context.Background(), HttpxContext, &Context{code: 123}),
 				defaultStatus: 999,
 			},
 			want: 123,
@@ -309,7 +309,7 @@ func Test_getHTTPStatusCode(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				ctx:           context.WithValue(context.Background(), HTTPStatus, (*int)(nil)),
+				ctx:           context.WithValue(context.Background(), HttpxContext, &Context{}),
 				defaultStatus: 999,
 			},
 			want: 999,
@@ -317,7 +317,7 @@ func Test_getHTTPStatusCode(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				ctx:           context.WithValue(context.Background(), HTTPStatus, getPtrInt(0)),
+				ctx:           context.WithValue(context.Background(), HttpxContext, &Context{}),
 				defaultStatus: 999,
 			},
 			want: 999,
@@ -346,7 +346,7 @@ func TestSetHttpStatusCode(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				ctx:    context.WithValue(context.Background(), HTTPStatus, getPtrInt(999)),
+				ctx:    context.WithValue(context.Background(), HttpxContext, &Context{code: 999}),
 				status: 200,
 			},
 			want: 200,
@@ -354,7 +354,7 @@ func TestSetHttpStatusCode(t *testing.T) {
 		{
 			name: "1",
 			args: args{
-				ctx:    context.WithValue(context.Background(), HTTPStatus, getPtrInt(999)),
+				ctx:    context.WithValue(context.Background(), HttpxContext, &Context{code: 999}),
 				status: 777,
 			},
 			want: 777,
@@ -377,15 +377,17 @@ func getPtrInt(a int) *int {
 
 func TestParse(t *testing.T) {
 	type test struct {
-		ID          string                 `path_param:"id"`
-		XXX         string                 `header_param:"test"`
-		Age         int                    `query_param:"age"`
-		Percentage  string                 `query_param:"percent"`
-		Percentage2 float64                `query_param:"percent"`
-		Query       url.Values             `query_param:""`
-		Query1      map[string]string      `query_param:""`
-		Query2      map[string]interface{} `query_param:""`
-		Query3      map[string][]string    `query_param:""`
+		ID            string                 `path_param:"id"`
+		XXX           string                 `header_param:"test"`
+		Age           int                    `query_param:"age"`
+		Percentage    string                 `query_param:"percent"`
+		Percentage2   float64                `query_param:"percent"`
+		Query         url.Values             `query_param:""`
+		Query1        map[string]string      `query_param:""`
+		Query2        map[string]interface{} `query_param:""`
+		Query3        map[string][]string    `query_param:""`
+		NotExistQuery int                    `query_param:"not_existttt"`
+		NotExistParam int                    `header_param:"not_existttt"`
 	}
 	type args struct {
 		r *http.Request
@@ -452,6 +454,54 @@ func TestParse(t *testing.T) {
 				},
 			},
 			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := Parse(tt.args.r, tt.args.v)
+			if err != nil || tt.wantErr {
+				assert.Equal(t, tt.wantErrMsg, err.Error(), "wrong error ")
+			} else {
+				assert.Equal(t, nil, err, "wrong ")
+				assert.Equal(t, tt.want, tt.args.v, "wrong ")
+			}
+		})
+	}
+}
+
+func TestParseValidator(t *testing.T) {
+	type test struct {
+		ID         int64   `path_param:"id" validate:"eq=3"`
+		XXX        int64   `header_param:"test"`
+		Age        int     `query_param:"age"`
+		Percentage float64 `query_param:"percent"`
+	}
+	type args struct {
+		r *http.Request
+		v interface{}
+	}
+	tests := []struct {
+		name       string
+		args       args
+		want       interface{}
+		wantErr    bool
+		wantErrMsg string
+	}{
+		{
+			name: "1",
+			args: args{
+				r: newReq(&chi.Context{
+					URLParams: chi.RouteParams{
+						Keys:   []string{"id"},
+						Values: []string{"123"},
+					},
+				}, "GET", "http://hello.com/123?name=hello&age=18&percent=3.4", nil, map[string]string{
+					"test": "234",
+				}),
+				v: &test{},
+			},
+			wantErr:    true,
+			wantErrMsg: "httpx.Parse validate error, err: Key: 'test.ID' Error:Field validation for 'ID' failed on the 'eq' tag",
 		},
 	}
 	for _, tt := range tests {

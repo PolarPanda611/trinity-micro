@@ -1,3 +1,9 @@
+// Author: Daniel TAN
+// Date: 2021-08-18 23:32:00
+// LastEditors: Daniel TAN
+// LastEditTime: 2021-12-18 00:02:05
+// FilePath: /trinity-micro/core/ioc/container/util.go
+// Description:
 package container
 
 import (
@@ -28,8 +34,8 @@ func encodeObjectName(instance interface{}, index int) string {
 
 }
 
-func getStringTagFromContainer(obj interface{}, index int, tagName Keyword) (value string, isExist bool) {
-	v, exist := getTagByName(obj, index, CONTAINER)
+func getStringTagFromContainer(obj interface{}, index int, container Keyword, tagName Keyword) (value string, isExist bool) {
+	v, exist := getTagByName(obj, index, container)
 	if exist {
 		resourceValue, ok := decodeTag(v, tagName)
 		if ok {
@@ -40,8 +46,8 @@ func getStringTagFromContainer(obj interface{}, index int, tagName Keyword) (val
 }
 
 // getBoolTag
-func getBoolTagFromContainer(obj interface{}, index int, tagName Keyword) (value bool, isExist bool) {
-	v, exist := getTagByName(obj, index, CONTAINER)
+func getBoolTagFromContainer(obj interface{}, index int, container Keyword, tagName Keyword) (value bool, isExist bool) {
+	v, exist := getTagByName(obj, index, container)
 	if exist {
 		autoFreeOption, ok := decodeTag(v, tagName)
 		if ok {

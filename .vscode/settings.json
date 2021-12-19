@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "consts",
+        "Dialector",
         "gorm",
         "httpx",
         "Infof",

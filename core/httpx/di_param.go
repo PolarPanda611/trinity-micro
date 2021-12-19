@@ -10,8 +10,7 @@ import (
 
 func DIParamHandler(handler interface{}) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(context.WithValue(r.Context(), HTTPRequest, r))
-		r = r.WithContext(context.WithValue(r.Context(), HTTPStatus, new(int)))
+		r = r.WithContext(context.WithValue(r.Context(), HttpxContext, NewContext(r, 200)))
 		handlerType := reflect.TypeOf(handler)
 		// sessionLogger := log.ForContext(r.Context())
 		inParams, err := InvokeHandler(handlerType, r)

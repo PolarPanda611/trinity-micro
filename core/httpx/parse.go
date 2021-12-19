@@ -47,27 +47,46 @@ func NewWriter() http.ResponseWriter {
 type HTTPContextKey string
 
 const (
-	HTTPStatus  HTTPContextKey = "HTTP_STATUS_CONTEXT_KEY"
-	HTTPRequest HTTPContextKey = "HTTP_REQUEST_CONTEXT_KEY"
+	HttpxContext HTTPContextKey = "HTTPX_CONTEXT_KEY"
 )
 
+type Context struct {
+	r    *http.Request
+	code int
+}
+
+func NewContext(r *http.Request, code int) *Context {
+	return &Context{
+		r:    r,
+		code: code,
+	}
+}
+
 func GetHTTPStatusCode(ctx context.Context, defaultStatus int) int {
-	if val, ok := ctx.Value(HTTPStatus).(*int); ok {
-		if val != nil && *val != 0 {
-			return *val
+	if val, ok := ctx.Value(HttpxContext).(*Context); ok {
+		if val != nil {
+			if val.code != 0 {
+				return val.code
+			}
 		}
 	}
 	return defaultStatus
 }
 
 func SetHttpStatusCode(ctx context.Context, status int) {
-	if val, ok := ctx.Value(HTTPStatus).(*int); ok {
-		*val = status
+	val, ok := ctx.Value(HttpxContext).(*Context)
+	if !ok {
+		panic("httpx context not set ")
 	}
+	val.code = status
 }
 
 func GetRawRequest(ctx context.Context) *http.Request {
-	return ctx.Value(HTTPRequest).(*http.Request)
+	val, ok := ctx.Value(HttpxContext).(*Context)
+	if !ok {
+		panic("httpx context not set ")
+	}
+	return val.r
 }
 
 func Parse(r *http.Request, v interface{}) error {
@@ -79,15 +98,16 @@ func Parse(r *http.Request, v interface{}) error {
 	for index := 0; index < destVal.NumField(); index++ {
 		val := destVal.Field(index)
 		if !val.CanSet() {
-			return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("di param : %v is not exported , cannot set", inType.Field(index).Name))
+			return fmt.Errorf("di param : %v is not exported , cannot set", inType.Field(index).Name)
 		}
-		// check if header param
 		if headerParam, isExist := inType.Field(index).Tag.Lookup("header_param"); isExist {
-			headerValString := r.Header.Get(headerParam)
-			if err := utils.StringConverter(headerValString, &val); err != nil {
-				return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("header param %v converted error, cannot set ,err:%v ,  val : %v  ", inType.Field(index).Name, err, headerValString))
+			if _defaultHeaderParser.Exist(r.Header, headerParam) {
+				headerValString := _defaultHeaderParser.Get(r.Header, headerParam)
+				if err := utils.StringConverter(headerValString, &val); err != nil {
+					return fmt.Errorf("header param %v converted error, cannot set ,err:%v ,  val : %v  ", inType.Field(index).Name, err, headerValString)
+				}
+				continue
 			}
-			continue
 		}
 		// check if path param
 		if pathParam, isExist := inType.Field(index).Tag.Lookup("path_param"); isExist {
@@ -132,9 +152,11 @@ func Parse(r *http.Request, v interface{}) error {
 					return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v get all query param converted error, only support string , val : %v ", inType.Field(index).Name, r.URL.RawQuery))
 				}
 			} else {
-				queryValString := r.URL.Query().Get(queryParam)
-				if err := utils.StringConverter(queryValString, &val); err != nil {
-					return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, queryValString))
+				if _defaultQueryParser.Exist(r.URL.Query(), queryParam) {
+					queryValString := _defaultQueryParser.Get(r.URL.Query(), queryParam)
+					if err := utils.StringConverter(queryValString, &val); err != nil {
+						return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, queryValString))
+					}
 				}
 			}
 			continue
@@ -214,7 +236,9 @@ func Parse(r *http.Request, v interface{}) error {
 			}
 			val.Set(reflect.ValueOf(newDest))
 		}
-
+	}
+	if err := _defaultValidator.Struct(v); err != nil {
+		return fmt.Errorf("httpx.Parse validate error, err: %v", err)
 	}
 	return nil
 }

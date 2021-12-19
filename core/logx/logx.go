@@ -1,10 +1,4 @@
-// Author: Daniel TAN
-// Date: 2021-10-02 23:44:42
-// LastEditors: Daniel TAN
-// LastEditTime: 2021-11-07 21:57:31
-// FilePath: /trinity-micro/middleware/logger.go
-// Description:
-package middleware
+package logx
 
 import (
 	"bytes"
@@ -22,10 +16,10 @@ import (
 type ContextKey string
 
 const (
-	ContextLogger ContextKey = "trinity-context-logger"
-	UrlPath       string     = "url.path"
-	UrlMethod     string     = "url.method"
-	UrlPattern    string     = "url.pattern"
+	LogxContext ContextKey = "logx-context"
+	UrlPath     string     = "url.path"
+	UrlMethod   string     = "url.method"
+	UrlPattern  string     = "url.pattern"
 )
 
 var _ http.ResponseWriter = new(recordResponseWriter)
@@ -54,34 +48,35 @@ func (w *recordResponseWriter) WriteHeader(statusCode int) {
 	w.w.WriteHeader(statusCode)
 }
 
-func InitLogger(logger logrus.FieldLogger) func(next http.Handler) http.Handler {
+func SessionLogger(logger logrus.FieldLogger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := context.WithValue(r.Context(), ContextLogger, logger)
+			ctx := context.WithValue(r.Context(), LogxContext, logger)
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})
 	}
 }
-func SetLoggerCtx(ctx context.Context, logger logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, ContextLogger, logger)
+func InjectCtx(ctx context.Context, logger logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, LogxContext, logger)
 }
 
 // LoggerFromCtx
 // if not exist will panic
-func LoggerFromCtx(ctx context.Context) logrus.FieldLogger {
-	logger, ok := ctx.Value(ContextLogger).(logrus.FieldLogger)
+func FromCtx(ctx context.Context) logrus.FieldLogger {
+	logger, ok := ctx.Value(LogxContext).(logrus.FieldLogger)
 	if !ok {
-		panic("please use middleware.InitLogger to init logger ")
+		panic("please use logx.InitLogger to init logger ")
 	}
 	return logger
 }
 
 func ChiLoggerRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		now := time.Now()
 		chiCtx := chi.RouteContext(r.Context())
-		ctxLogger := LoggerFromCtx(r.Context()).WithFields(
+		ctxLogger := FromCtx(r.Context()).WithFields(
 			map[string]interface{}{
 				UrlPath:    r.URL.Path,
 				UrlMethod:  r.Method,

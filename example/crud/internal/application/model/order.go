@@ -1,7 +1,9 @@
 package model
 
+import "github.com/PolarPanda611/trinity-micro/core/dbx"
+
 type Order struct {
-	ID           uint64
+	dbx.Model
 	Code         string
 	UserID       uint64
 	User         *User
@@ -10,7 +12,7 @@ type Order struct {
 }
 
 type OrderDetail struct {
-	ID       uint64
+	dbx.Model
 	Code     string
 	PriceID  uint64
 	Quantity int

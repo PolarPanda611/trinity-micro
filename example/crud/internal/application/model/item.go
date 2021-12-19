@@ -1,7 +1,9 @@
 package model
 
+import "github.com/PolarPanda611/trinity-micro/core/dbx"
+
 type Item struct {
-	ID   uint64
+	dbx.Model
 	Code string
 	Name string
 }

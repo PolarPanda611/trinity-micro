@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+	"github.com/PolarPanda611/trinity-micro/core/logx"
 	"github.com/PolarPanda611/trinity-micro/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/robfig/cron/v3"
@@ -30,7 +31,7 @@ type Config struct {
 type Trinity struct {
 	sync.RWMutex
 	mux
-	logrus.FieldLogger
+	log       logrus.FieldLogger
 	container *container.Container
 	cron      *cron.Cron
 }
@@ -53,22 +54,22 @@ func New(c ...Config) *Trinity {
 			Logger: _defaultLog,
 		})
 	}
-
-	c[0].Mux.Use(middleware.Recovery(_defaultLog))
-	c[0].Mux.Use(middleware.InitLogger(c[0].Logger))
-
 	ins := &Trinity{
-		mux:         c[0].Mux,
-		FieldLogger: c[0].Logger,
+		mux: c[0].Mux,
+		log: c[0].Logger,
 		container: container.NewContainer(container.Config{
-			AutoWired: true,
-			Log:       c[0].Logger,
+			AutoWire: true,
+			Log:      c[0].Logger,
 		}),
 		cron: cron.New(cron.WithChain(
 			cron.Recover(NewCronLogger(c[0].Logger)), // or use cron.DefaultLogger
 		)),
 	}
+
+	ins.mux.Use(middleware.Recovery(ins.log))
+	ins.mux.Use(logx.SessionLogger(ins.log))
 	ins.cron.Start()
+	ins.initInstance()
 	return ins
 }
 
@@ -77,7 +78,7 @@ func (t *Trinity) Start(addr ...string) error {
 	if len(addr) > 0 {
 		address = addr[0]
 	}
-	t.Infof("service started at %v", address)
+	t.log.Infof("service started at %v", address)
 	return http.ListenAndServe(address, t.mux)
 }
 

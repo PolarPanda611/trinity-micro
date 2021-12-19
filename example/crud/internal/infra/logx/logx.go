@@ -4,7 +4,7 @@
 // LastEditTime: 2021-10-03 23:32:30
 // FilePath: /trinity-micro/example/crud/internal/infra/logx/logx.go
 // Description:
-package logx
+package logger
 
 import "github.com/sirupsen/logrus"
 

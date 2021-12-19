@@ -55,49 +55,49 @@ func TestContainer_DiFree(t *testing.T) {
 	empty := inject1{}
 	{
 		obj := struct{}{}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Equal(t, struct{}{}, obj, "di free successfully")
 	}
 	{
 		obj := struct {
 			test1 inject1 `container:"autowire:true"`
 		}{a}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Equal(t, a, obj.test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 inject1 `container:"autowire:true"`
 		}{a}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Equal(t, empty, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 inject1 `container:"autowire:false"`
 		}{a}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Equal(t, empty, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 inject1 `container:"autowire:true"`
 		}{a}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Equal(t, empty, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 *inject1 `container:"autowire:true"`
 		}{&a}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Nil(t, obj.Test1, "diFree error ")
 	}
 	{
 		obj := struct {
 			Test1 string `container:"autowire:true"`
 		}{"1"}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Equal(t, "", obj.Test1, "diFree error ")
 	}
 	{
@@ -105,7 +105,7 @@ func TestContainer_DiFree(t *testing.T) {
 		obj := struct {
 			Test1 *string `container:"autowire:true"`
 		}{&s}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Nil(t, obj.Test1, "diFree error ")
 	}
 	{
@@ -114,7 +114,7 @@ func TestContainer_DiFree(t *testing.T) {
 			Test1 *string `container:"autowire:true"`
 			T     string
 		}{&s, "1"}
-		DiFree(logger, &obj)
+		NewContainer().DiFree(&obj)
 		assert.Nil(t, obj.Test1, "diFree error ")
 		assert.Equal(t, "1", obj.T, "diFree error ")
 	}
@@ -342,7 +342,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di ptr",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"inject1": {
 						New: func() interface{} { return &inject1{} },
@@ -365,7 +365,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di with inject map instance",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"inject1": {
 						New: func() interface{} { return &inject1{} },
@@ -390,7 +390,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di with inject map instance",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"shared1": {
 						New: func() interface{} { return &testShared1{} },
@@ -417,7 +417,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di with interface",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"shared1": {
 						New: func() interface{} { return &testShared1{} },
@@ -454,7 +454,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di with interface",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"shared1": {
 						New: func() interface{} { return &testShared1{} },
@@ -491,7 +491,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di with empty interface",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"shared1": {
 						New: func() interface{} { return &testShared1{} },
@@ -522,7 +522,7 @@ func TestContainer_DiAllFields(t *testing.T) {
 		{
 			name: "di with empty interface 2 ",
 			fields: fields{
-				c: DefaultConfig,
+				c: _DefaultConfig,
 				poolMap: map[string]*sync.Pool{
 					"shared1": {
 						New: func() interface{} { return &testShared1{} },

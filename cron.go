@@ -42,7 +42,7 @@ func (t *Trinity) AddCronJobs(resourceName string, spec string, cmd func(srv int
 	if len(jobNames) > 0 {
 		jobName = jobNames[0]
 	}
-	t.FieldLogger.Infof("cronjob register handler: job name: %10v, spec: %10v ", jobName, spec)
+	t.log.Infof("cronjob register handler: job name: %10v, spec: %10v ", jobName, spec)
 	t.cron.Stop()
 	t.cron.Start()
 }
