@@ -31,6 +31,7 @@ func Test_StringConverter(t *testing.T) {
 		S9  *string
 		S10 float32
 		S11 float64
+		S12 *bool
 	}
 	dest := &Test{}
 	{
@@ -109,11 +110,7 @@ func Test_StringConverter(t *testing.T) {
 		err := StringConverter(`{"Test":"123","Code":1}123`, &val)
 		assert.Equal(t, "invalid character '1' after top-level value", err.Error(), "wrong err ")
 	}
-	{
-		val := getStructFieldValue(dest, 8)
-		err := StringConverter("true", &val)
-		assert.Equal(t, "unsupported type", err.Error(), "wrong err ")
-	}
+
 	{
 		val := getStructFieldValue(dest, 9)
 		err := StringConverter("3.4", &val)
@@ -125,6 +122,25 @@ func Test_StringConverter(t *testing.T) {
 		err := StringConverter("3.4", &val)
 		assert.Equal(t, nil, err, "wrong err ")
 		assert.Equal(t, float64(3.4), dest.S11, "wrong dest ")
+	}
+
+	{
+		val := getStructFieldValue(dest, 8)
+		err := StringConverter("true", &val)
+		assert.Equal(t, nil, err, "wrong err ")
+		assert.Equal(t, "true", *dest.S9, "wrong err ")
+	}
+	{
+		val := getStructFieldValue(dest, 11)
+		err := StringConverter("true", &val)
+		assert.Equal(t, nil, err, "wrong err ")
+		assert.Equal(t, true, *dest.S12, "wrong err ")
+	}
+	{
+		val := getStructFieldValue(dest, 11)
+		err := StringConverter("false", &val)
+		assert.Equal(t, nil, err, "wrong err ")
+		assert.Equal(t, false, *dest.S12, "wrong err ")
 	}
 }
 

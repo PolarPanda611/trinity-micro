@@ -68,7 +68,7 @@ func Init(c *Config) {
 	Migrate(context.Background(), "test", "shin", "new")
 }
 
-func SessionDB(next http.Handler) http.Handler {
+func SessionHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionLogger := logx.FromCtx(r.Context())
 		sessionDB := DB.Session(&gorm.Session{
@@ -80,11 +80,28 @@ func SessionDB(next http.Handler) http.Handler {
 			LogLevel:      logger.Info,
 			Colorful:      true,
 		})
-		r = r.WithContext(context.WithValue(r.Context(), DBXContext, sessionDB))
+		r = r.WithContext(InjectCtx(r.Context(), sessionDB))
 		next.ServeHTTP(w, r)
 	})
 }
+func SessionCtx(ctx context.Context) context.Context {
+	sessionLogger := logx.FromCtx(ctx)
+	sessionDB := DB.Session(&gorm.Session{
+		NewDB:   true,
+		Context: ctx,
+	})
+	sessionDB.Logger = logger.New(sessionLogger, logger.Config{
+		SlowThreshold: 200 * time.Millisecond,
+		LogLevel:      logger.Info,
+		Colorful:      true,
+	})
 
+	return InjectCtx(ctx, sessionDB)
+}
+
+func InjectCtx(ctx context.Context, db *gorm.DB) context.Context {
+	return context.WithValue(ctx, DBXContext, db)
+}
 func FromCtx(ctx context.Context) *gorm.DB {
 	db, ok := ctx.Value(DBXContext).(*gorm.DB)
 	if !ok {

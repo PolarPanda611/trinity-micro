@@ -98,6 +98,13 @@ func StringConverter(word string, destVal *reflect.Value) error {
 			return err
 		}
 		destVal.Set(reflect.ValueOf(targetVal).Elem())
+	case reflect.Ptr:
+		targetVal := reflect.New(destVal.Type().Elem())
+		dest := targetVal.Elem()
+		if err := StringConverter(word, &dest); err != nil {
+			return err
+		}
+		destVal.Set(targetVal)
 	default:
 		return fmt.Errorf("unsupported type")
 	}

@@ -38,7 +38,7 @@ func init() {
 					},
 				),
 			),
-			dbx.SessionDB,
+			dbx.SessionHandler,
 		),
 		trinity.NewRequestMapping("GET", "/{id}", "GetUserByID",
 			logx.ChiLoggerRequest,
@@ -50,7 +50,7 @@ func init() {
 					},
 				),
 			),
-			dbx.SessionDB,
+			dbx.SessionHandler,
 		),
 	)
 }
