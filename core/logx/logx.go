@@ -92,7 +92,6 @@ func FromCtx(ctx context.Context) logrus.FieldLogger {
 
 func ChiLoggerRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		now := time.Now()
 		chiCtx := chi.RouteContext(r.Context())
 		ctxLogger := FromCtx(r.Context()).WithFields(
@@ -102,6 +101,7 @@ func ChiLoggerRequest(next http.Handler) http.Handler {
 				UrlPattern: chiCtx.RoutePattern(),
 			},
 		)
+		r = r.WithContext(InjectCtx(r.Context(), ctxLogger))
 		ctxLogger.Infof("request start at %v", now.String())
 		dump, err := httputil.DumpRequest(r, false)
 		if err != nil {
