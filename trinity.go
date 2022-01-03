@@ -1,13 +1,6 @@
-// Author: Daniel TAN
-// Date: 2021-09-06 00:13:18
-// LastEditors: Daniel TAN
-// LastEditTime: 2021-10-18 01:44:36
-// FilePath: /pmpm_reporting_api/Users/danieltan/Workspace/trinity-micro/trinity.go
-// Description:
 package trinity
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
@@ -71,15 +64,6 @@ func New(c ...Config) *Trinity {
 	ins.cron.Start()
 	ins.initInstance()
 	return ins
-}
-
-func (t *Trinity) Start(addr ...string) error {
-	address := ":http"
-	if len(addr) > 0 {
-		address = addr[0]
-	}
-	t.log.Infof("service started at %v", address)
-	return http.ListenAndServe(address, t.mux)
 }
 
 func (t *Trinity) GetInstance(resourceName string) (interface{}, map[string]interface{}) {

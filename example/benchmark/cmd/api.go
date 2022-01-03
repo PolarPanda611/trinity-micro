@@ -84,7 +84,6 @@ func RunAPI(cmd *cobra.Command, args []string) {
 
 	// init Router
 	t := trinity.Default()
-	t.DIRouter()
 	t.Get("/benchmark/simple_raw", controller.SimpleRaw)
 	logx.Logger.Infof("router register handler: %-6s %-30s => %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
 	t.Get("/benchmark/path_param_raw/{id}", controller.PathParamRaw)

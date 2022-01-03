@@ -14,7 +14,10 @@
  */
 package dto
 
-import "github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
+import (
+	"github.com/PolarPanda611/trinity-micro/core/dbx"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
+)
 
 type GetUserByIDRequest struct {
 	*CommonRequest
@@ -26,22 +29,31 @@ type GetUserByIDResponse UserDTO
 
 type ListUserRequest struct {
 	*CommonRequest
+	PageSize      *uint  `query_param:"pageSize"`
+	PageNum       *uint  `query_param:"current"`
 	Username      string `query_param:"username"`
 	CurrentUserID uint64 `header_param:"current_user_id"`
 }
-type ListUserResponse []UserDTO
+type ListUserResponse struct {
+	Data []UserDTO
+	*dbx.PaginationDTO
+}
+
 type UserDTO struct {
 	ID       uint64 `json:"id,string"`
 	Username string `json:"username"`
 	Age      int    `json:"age"`
 }
 
-func NewListUserResponse(m []model.User) ListUserResponse {
+func NewListUserResponse(m []model.User, pageSize, pageNum uint, total int64) *ListUserResponse {
 	res := make([]UserDTO, len(m))
 	for i, v := range m {
 		res[i] = *NewUserDTO(&v)
 	}
-	return res
+	return &ListUserResponse{
+		Data:          res,
+		PaginationDTO: dbx.NewPaginationDTO(pageSize, pageNum, total),
+	}
 }
 
 func NewUserDTO(m *model.User) *UserDTO {

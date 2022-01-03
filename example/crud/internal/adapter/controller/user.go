@@ -27,7 +27,7 @@ func init() {
 		},
 	}
 	trinity.RegisterInstance("UserController", UserControllerPool)
-	trinity.RegisterController("/example-api/v1/{corpID}/users", "UserController",
+	trinity.RegisterController("/example-api/v1/{tenant}/users", "UserController",
 		trinity.NewRequestMapping("GET", "/", "ListUser",
 			logx.ChiLoggerRequest,
 			tracerx.ChiOpenTracer(
@@ -80,6 +80,6 @@ func (c *userControllerImpl) GetUserByID(ctx context.Context, req *dto.GetUserBy
 // @Header: 200 {string} Token "qwerty"
 // @Failure: 400,404 {object} httputil.HTTPError
 // @Router: /accounts/{id} [get]
-func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (dto.ListUserResponse, error) {
+func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error) {
 	return c.UserSrv.ListUser(ctx, req)
 }

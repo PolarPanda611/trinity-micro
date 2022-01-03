@@ -3,6 +3,7 @@ module github.com/PolarPanda611/trinity-micro
 go 1.16
 
 require (
+	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.3

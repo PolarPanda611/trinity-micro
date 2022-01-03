@@ -9,6 +9,6 @@ package consts
 const (
 	ApiCmdString   string = "api"
 	BatchCmdString string = "batch"
-	ProjectName    string = "example"
+	ProjectName    string = "crud"
 	Version        string = "v0.0.1"
 )

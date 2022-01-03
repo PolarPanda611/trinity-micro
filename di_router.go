@@ -8,10 +8,14 @@ package trinity
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"reflect"
 	"sync"
+	"syscall"
 
 	"github.com/PolarPanda611/trinity-micro/core/e"
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
@@ -145,7 +149,7 @@ func DIHandler(container *container.Container, instanceName string, funcName str
 	}
 }
 
-func (t *Trinity) DIRouter() {
+func (t *Trinity) diRouter() {
 	t.routerSelfCheck()
 	// register router
 	for _, controller := range _bootingControllers {
@@ -182,4 +186,24 @@ func (t *Trinity) routerSelfCheck() {
 		}
 	}
 
+}
+
+func (t *Trinity) Start(addr ...string) error {
+	t.diRouter()
+	address := ":http"
+	if len(addr) > 0 {
+		address = addr[0]
+	}
+	t.log.Infof("service started at %v", address)
+	gErr := make(chan error)
+	go func() {
+		gErr <- http.ListenAndServe(address, t.mux)
+	}()
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+		gErr <- fmt.Errorf("receive %s", <-sigChan)
+	}()
+
+	return <-gErr
 }

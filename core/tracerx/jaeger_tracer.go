@@ -1,6 +1,7 @@
 package tracerx
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -20,16 +21,27 @@ import (
 const (
 	defaultComponentName = "net/http"
 	TraceIDKey           = "trace-id"
+	JaegerType           = "jaeger"
 )
 
 type Config struct {
-	ServiceName     string
-	JaegerAgentHost string
+	Type        string
+	ServiceName string
+	Host        string
 }
 
 func Init(c Config) {
+	switch c.Type {
+	case JaegerType:
+		InitJaeger(c)
+	default:
+		panic(fmt.Sprintf("unsupported tracer type %v", c.Type))
+	}
+}
+
+func InitJaeger(c Config) {
 	os.Setenv("JAEGER_SERVICE_NAME", c.ServiceName)
-	os.Setenv("JAEGER_AGENT_HOST", c.JaegerAgentHost)
+	os.Setenv("JAEGER_AGENT_HOST", c.Host)
 	cfg, err := jaegerConfig.FromEnv()
 	if err != nil {
 		// parsing errors might happen here, such as when we get a string where we expect a number

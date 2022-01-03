@@ -64,8 +64,6 @@ func Init(c *Config) {
 		c.Logger.Fatalf("init db error, err: %v", err)
 	}
 	c.Logger.Infof("init db successfully!")
-
-	Migrate(context.Background(), "test", "shin", "new")
 }
 
 func SessionHandler(next http.Handler) http.Handler {

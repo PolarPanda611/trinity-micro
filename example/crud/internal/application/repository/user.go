@@ -27,8 +27,9 @@ func init() {
 var _ UserRepository = new(userRepositoryImpl)
 
 type UserRepository interface {
-	GetUserByID(ctx context.Context, Tenant string, ID uint64) (*model.User, error)
-	ListUser(ctx context.Context, Tenant string) ([]model.User, error)
+	GetUserByID(ctx context.Context, tenant string, ID uint64) (*model.User, error)
+	ListUser(ctx context.Context, tenant string) ([]model.User, error)
+	CountUser(ctx context.Context, tenant string) (int64, error)
 }
 
 type userRepositoryImpl struct {
@@ -37,7 +38,7 @@ type userRepositoryImpl struct {
 func (r *userRepositoryImpl) GetUserByID(ctx context.Context, tenant string, ID uint64) (*model.User, error) {
 	res := &model.User{}
 	if err := dbx.FromCtx(ctx).Scopes(
-		dbx.WithTenant("test", &model.User{}),
+		dbx.WithTenant(tenant, &model.User{}),
 	).
 		Where("id = ?", ID).First(res).Error; err != nil {
 		return nil, err
@@ -48,10 +49,21 @@ func (r *userRepositoryImpl) GetUserByID(ctx context.Context, tenant string, ID 
 func (r *userRepositoryImpl) ListUser(ctx context.Context, tenant string) ([]model.User, error) {
 	res := []model.User{}
 	if err := dbx.FromCtx(ctx).Scopes(
-		dbx.WithTenant("test", &model.User{}),
+		dbx.WithTenant(tenant, &model.User{}),
 	).
 		Find(&res).Error; err != nil {
 		return nil, err
 	}
 	return res, nil
+}
+
+func (r *userRepositoryImpl) CountUser(ctx context.Context, tenant string) (int64, error) {
+	var c int64
+	if err := dbx.FromCtx(ctx).Scopes(
+		dbx.WithTenant(tenant, &model.User{}),
+	).
+		Count(&c).Error; err != nil {
+		return 0, err
+	}
+	return c, nil
 }
