@@ -29,11 +29,39 @@ type GetUserByIDResponse UserDTO
 
 type ListUserRequest struct {
 	*CommonRequest
-	PageSize      *uint  `query_param:"pageSize"`
-	PageNum       *uint  `query_param:"current"`
-	Username      string `query_param:"username"`
-	CurrentUserID uint64 `header_param:"current_user_id"`
+	PageSize      *uint   `query_param:"pageSize" validate:"required"`
+	PageNum       *uint   `query_param:"current"`
+	UsernameIlike *string `query_param:"username__ilike"`
+	Age           *int    `query_param:"age"`
+	CurrentUserID uint64  `header_param:"current_user_id"`
 }
+
+type ListUserPageQuery struct {
+	PageSize *uint
+	PageNum  *uint
+	*ListUserQuery
+}
+type ListUserQuery struct {
+	UsernameIlike *string
+	Age           *int
+	CurrentUserID uint64
+}
+
+func (r *ListUserRequest) ParseQuery() *ListUserQuery {
+	return &ListUserQuery{
+		UsernameIlike: r.UsernameIlike,
+		Age:           r.Age,
+		CurrentUserID: r.CurrentUserID,
+	}
+}
+func (r *ListUserRequest) ParsePageQuery() *ListUserPageQuery {
+	return &ListUserPageQuery{
+		PageSize:      r.PageSize,
+		PageNum:       r.PageNum,
+		ListUserQuery: r.ParseQuery(),
+	}
+}
+
 type ListUserResponse struct {
 	Data []UserDTO
 	*dbx.PaginationDTO
@@ -45,14 +73,14 @@ type UserDTO struct {
 	Age      int    `json:"age"`
 }
 
-func NewListUserResponse(m []model.User, pageSize, pageNum uint, total int64) *ListUserResponse {
+func NewListUserResponse(m []model.User, pageSize, pageNum *uint, total int64) *ListUserResponse {
 	res := make([]UserDTO, len(m))
 	for i, v := range m {
 		res[i] = *NewUserDTO(&v)
 	}
 	return &ListUserResponse{
 		Data:          res,
-		PaginationDTO: dbx.NewPaginationDTO(pageSize, pageNum, total),
+		PaginationDTO: dbx.NewPaginationDTO(*pageSize, *pageNum, total),
 	}
 }
 

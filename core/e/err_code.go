@@ -56,13 +56,13 @@ const (
 	 * @Description: when calling vertex, there has un-caught error
 	 */
 	ErrVertexUnknownException errorCode = 400009
-	//ErrResourceNotFound
+	//ErrRecordNotFound
 	/**
 	 * @Author: Daniel TAN
 	 * @Description: when http query, http body has some resource not found , return this error
 	 * @Description: for example, post {"store":"112201"}, the store not exist
 	 */
-	ErrResourceNotFound errorCode = 400010
+	ErrRecordNotFound errorCode = 400010
 	//ErrAdvisoryLock
 	/**
 	 * @Author: Daniel TAN
@@ -91,12 +91,12 @@ const (
 
 // 404 error
 const (
-	// ErrRecordNotFound
+	// ErrResourceNotFound
 	/**
 	 * @Author: Daniel TAN
 	 * @Description: only when get /{id}, the id not found, we response this error
 	 */
-	ErrRecordNotFound errorCode = 404001
+	ErrResourceNotFound errorCode = 404001
 )
 
 // 500 error

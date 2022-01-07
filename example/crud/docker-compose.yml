@@ -1,0 +1,30 @@
+version: "3.5"
+networks:
+  pmpm_vnet:
+
+services:
+  crud-data:
+    image: postgres:14.0
+    command: -c 'max_connections=500'
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test123
+      POSTGRES_DB: crud
+    networks: 
+      - pmpm_vnet
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "crud", "-U", "test"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/postgres/init/init.sql:/docker-entrypoint-initdb.d/init.sql
+

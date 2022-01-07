@@ -17,4 +17,4 @@
 __debug_bin
 .vscode
 benchmark
-crud
+crud-api.log

@@ -38,22 +38,22 @@ type userServiceImpl struct {
 }
 
 func (s *userServiceImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error) {
-	if req.PageNum != nil {
+	if req.PageNum == nil {
 		var i uint = 1
 		req.PageNum = &i
 	}
-	if req.PageSize != nil {
+	if req.PageSize == nil {
 		req.PageSize = &config.Conf.Application.PageSize
 	}
-	users, err := s.UserRepo.ListUser(ctx, req.Tenant)
+	users, err := s.UserRepo.ListUser(ctx, req.Tenant, req.ParsePageQuery())
 	if err != nil {
 		return nil, err
 	}
-	userCount, err := s.UserRepo.CountUser(ctx, req.Tenant)
+	userCount, err := s.UserRepo.CountUser(ctx, req.Tenant, req.ParseQuery())
 	if err != nil {
 		return nil, err
 	}
-	return dto.NewListUserResponse(users, *req.PageSize, *req.PageNum, userCount), nil
+	return dto.NewListUserResponse(users, req.PageSize, req.PageNum, userCount), nil
 }
 
 func (s *userServiceImpl) GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error) {

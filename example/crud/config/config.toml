@@ -1,0 +1,14 @@
+[database]
+type = "postgres"
+dsn = "host=127.0.0.1 port=5432 user=test  password=test123 dbname=crud sslmode=disable"
+max_idle_conn = 10
+max_open_conn = 10
+table_prefix = "crud_"
+
+[tracer]
+type = "jaeger"
+service_name = "crud_api"
+host = "47.92.97.133"
+
+[application]
+page_size = 20 
