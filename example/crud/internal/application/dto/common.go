@@ -6,6 +6,11 @@
 // Description:
 package dto
 
-type CommonRequest struct {
+type TenantRequest struct {
 	Tenant string `path_param:"tenant"`
+}
+
+type PageRequest struct {
+	PageSize *uint `query_param:"page_size" validate:"required,min=1,max=500"`
+	PageNum  *uint `query_param:"page_num"  validate:"required,min=1"`
 }

@@ -8,8 +8,6 @@ package service
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro"
@@ -17,7 +15,6 @@ import (
 	"github.com/PolarPanda611/trinity-micro/example/crud/config"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/repository"
-	"gorm.io/gorm"
 )
 
 func init() {
@@ -29,8 +26,9 @@ func init() {
 }
 
 type UserService interface {
-	GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error)
+	GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.UserInfoResponse, error)
 	ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error)
+	CreateUser(ctx context.Context, newUser *dto.CreateUserRequest) (*dto.UserInfoResponse, error)
 }
 
 type userServiceImpl struct {
@@ -56,13 +54,21 @@ func (s *userServiceImpl) ListUser(ctx context.Context, req *dto.ListUserRequest
 	return dto.NewListUserResponse(users, req.PageSize, req.PageNum, userCount), nil
 }
 
-func (s *userServiceImpl) GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error) {
+func (s *userServiceImpl) GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.UserInfoResponse, error) {
 	user, err := s.UserRepo.GetUserByID(ctx, req.Tenant, req.ID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, e.NewError(e.Info, e.ErrRecordNotFound, fmt.Sprintf("recource %v not found", req.ID), err)
-		}
-		return nil, e.NewError(e.Error, e.ErrExecuteSQL, "excute GetUserByID failed ", err)
+		return nil, err
 	}
-	return dto.NewGetUserByIDResponse(user), nil
+	return dto.NewUserInfoResponse(user), nil
+}
+
+func (s *userServiceImpl) CreateUser(ctx context.Context, req *dto.CreateUserRequest) (*dto.UserInfoResponse, error) {
+	if err := req.Validate(); err != nil {
+		return nil, e.NewError(e.Info, e.ErrInvalidRequest, err.Error())
+	}
+	user, err := s.UserRepo.CreateUser(ctx, req.Tenant, req.Parse())
+	if err != nil {
+		return nil, err
+	}
+	return dto.NewUserInfoResponse(user), nil
 }

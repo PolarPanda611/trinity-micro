@@ -82,6 +82,7 @@ func SessionHandler(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
 func SessionCtx(ctx context.Context) context.Context {
 	sessionLogger := logx.FromCtx(ctx)
 	sessionDB := DB.Session(&gorm.Session{

@@ -15,22 +15,55 @@
 package dto
 
 import (
+	"errors"
+
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
 )
 
 type GetUserByIDRequest struct {
-	*CommonRequest
+	*TenantRequest
 	CurrentUserID uint64 `header_param:"current_user_id"`
 	ID            uint64 `path_param:"id"`
 }
 
-type GetUserByIDResponse UserDTO
+type CreateUserRequest struct {
+	*TenantRequest
+	CurrentUserID uint64     `header_param:"current_user_id"`
+	NewUser       NewUserDTO `body_param:""`
+}
+
+func (r *CreateUserRequest) Validate() error {
+	if r.NewUser.Email == "" {
+		return errors.New("email cannot be empty")
+	}
+	if r.NewUser.Username == "" {
+		return errors.New("username cannot be empty")
+	}
+	if len(r.NewUser.Password) < 8 {
+		return errors.New("password cannot be less then 8")
+	}
+	return nil
+}
+
+func (r *CreateUserRequest) Parse() *model.User {
+	return &model.User{
+		Username: r.NewUser.Username,
+		Password: r.NewUser.Password,
+		Email:    r.NewUser.Email,
+	}
+}
+
+type NewUserDTO struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+}
+type UserInfoResponse UserInfoDTO
 
 type ListUserRequest struct {
-	*CommonRequest
-	PageSize      *uint   `query_param:"pageSize" validate:"required"`
-	PageNum       *uint   `query_param:"current"`
+	*TenantRequest
+	*PageRequest
 	UsernameIlike *string `query_param:"username__ilike"`
 	Age           *int    `query_param:"age"`
 	CurrentUserID uint64  `header_param:"current_user_id"`
@@ -63,21 +96,22 @@ func (r *ListUserRequest) ParsePageQuery() *ListUserPageQuery {
 }
 
 type ListUserResponse struct {
-	Data []UserDTO
+	Data []UserInfoDTO
 	*httpx.PaginationDTO
 }
 
-type UserDTO struct {
-	ID       uint64 `json:"id,string" example:"1479429646645936128"`
+type UserInfoDTO struct {
+	ID       int64  `json:"id,string" example:"1479429646645936128"`
 	Username string `json:"username" example:"Daniel"`
+	Email    string `json:"email"  example:"daniel@trinity.com"`
 	Age      int    `json:"age" example:"18"`
 	Gender   string `json:"gender" enums:"male,female" example:"male"`
 }
 
 func NewListUserResponse(m []model.User, pageSize, pageNum *uint, total int64) *ListUserResponse {
-	res := make([]UserDTO, len(m))
+	res := make([]UserInfoDTO, len(m))
 	for i, v := range m {
-		res[i] = *NewUserDTO(&v)
+		res[i] = *NewUserInfoDTO(&v)
 	}
 	return &ListUserResponse{
 		Data:          res,
@@ -85,16 +119,17 @@ func NewListUserResponse(m []model.User, pageSize, pageNum *uint, total int64) *
 	}
 }
 
-func NewUserDTO(m *model.User) *UserDTO {
-	return &UserDTO{
+func NewUserInfoDTO(m *model.User) *UserInfoDTO {
+	return &UserInfoDTO{
 		ID:       m.ID,
 		Username: m.Username,
+		Email:    m.Email,
 		Age:      int(m.Age),
 	}
 }
 
-func NewGetUserByIDResponse(m *model.User) *GetUserByIDResponse {
-	d := NewUserDTO(m)
-	res := GetUserByIDResponse(*d)
+func NewUserInfoResponse(m *model.User) *UserInfoResponse {
+	d := NewUserInfoDTO(m)
+	res := UserInfoResponse(*d)
 	return &res
 }

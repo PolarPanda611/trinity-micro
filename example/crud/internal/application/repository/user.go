@@ -35,6 +35,8 @@ type UserRepository interface {
 	GetUserByID(ctx context.Context, tenant string, ID uint64) (*model.User, error)
 	ListUser(ctx context.Context, tenant string, query *dto.ListUserPageQuery) ([]model.User, error)
 	CountUser(ctx context.Context, tenant string, query *dto.ListUserQuery) (int64, error)
+	CreateUser(ctx context.Context, tenant string, newUser *model.User) (*model.User, error)
+	UpdateUser(ctx context.Context, tenant string, id uint64, version string, change map[string]interface{}) error
 }
 
 type userRepositoryImpl struct {
