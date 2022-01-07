@@ -68,9 +68,10 @@ type ListUserResponse struct {
 }
 
 type UserDTO struct {
-	ID       uint64 `json:"id,string"`
-	Username string `json:"username"`
-	Age      int    `json:"age"`
+	ID       uint64 `json:"id,string" example:"1479429646645936128"`
+	Username string `json:"username" example:"Daniel"`
+	Age      int    `json:"age" example:"18"`
+	Gender   string `json:"gender" enums:"male,female" example:"male"`
 }
 
 func NewListUserResponse(m []model.User, pageSize, pageNum *uint, total int64) *ListUserResponse {

@@ -8,17 +8,17 @@ import (
 )
 
 type Model struct {
-	ID        uint64 `gorm:"primarykey;autoIncrement:false"`
+	ID        uint64 `gorm:"primarykey;autoIncrement:false" example:"1479429646645936128"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time `gorm:"index"`
 }
 
 type PaginationDTO struct {
-	Total     int64 `json:"total"`
-	Current   uint  `json:"current"`
-	TotalPage uint  `json:"total_page"`
-	PageSize  uint  `json:"page_size"`
+	Total     int64 `json:"total" example:"120"`
+	Current   uint  `json:"current" example:"3"`
+	TotalPage uint  `json:"total_page" example:"6"`
+	PageSize  uint  `json:"page_size" example:"20"`
 }
 
 func NewPaginationDTO(pageSize, pageNum uint, total int64) *PaginationDTO {

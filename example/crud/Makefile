@@ -1,2 +1,2 @@
 swag:
-	swag init -g internal/cmd/api.go
+	swag init --parseDependency -g internal/cmd/api.go

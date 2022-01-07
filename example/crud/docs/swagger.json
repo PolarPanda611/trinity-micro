@@ -17,7 +17,298 @@
     },
     "host": "localhost:3000",
     "basePath": "/",
-    "paths": {},
+    "paths": {
+        "/example-api/v1/{tenant}/users": {
+            "get": {
+                "description": "list user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "list user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "current user id",
+                        "name": "current_user_id",
+                        "in": "header"
+                    },
+                    {
+                        "type": "string",
+                        "description": "tenant id",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "maximum": 500,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "current",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "username ilike",
+                        "name": "username__ilike",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string",
+                        "description": "username ilike",
+                        "name": "age",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httpx.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "$ref": "#/definitions/dto.ListUserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "error response",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error response",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/example-api/v1/{tenant}/users/{id}": {
+            "get": {
+                "description": "get string by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Single user information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tenant id",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httpx.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "$ref": "#/definitions/dto.GetUserByIDResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "error response",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error response",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.GetUserByIDResponse": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "example": 18
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "male",
+                        "female"
+                    ],
+                    "example": "male"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1479429646645936128"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Daniel"
+                }
+            }
+        },
+        "dto.ListUserResponse": {
+            "type": "object",
+            "properties": {
+                "current": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.UserDTO"
+                    }
+                },
+                "page_size": {
+                    "type": "integer",
+                    "example": 20
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 120
+                },
+                "total_page": {
+                    "type": "integer",
+                    "example": 6
+                }
+            }
+        },
+        "dto.UserDTO": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "example": 18
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "male",
+                        "female"
+                    ],
+                    "example": "male"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1479429646645936128"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Daniel"
+                }
+            }
+        },
+        "httpx.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/httpx.ResponseError"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "trace_id": {
+                    "type": "string",
+                    "example": "1-trace-it"
+                }
+            }
+        },
+        "httpx.Response": {
+            "type": "object",
+            "properties": {
+                "result": {},
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "trace_id": {
+                    "type": "string",
+                    "example": "1-trace-it"
+                }
+            }
+        },
+        "httpx.ResponseError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400001
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "error detail1",
+                        "error detail2"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "example": "ErrInvalidRequest"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "BasicAuth": {
             "type": "basic"

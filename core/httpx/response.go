@@ -43,21 +43,26 @@ func XMLResponse(w http.ResponseWriter, status int, res interface{}) {
 }
 
 type Response struct {
-	Status  int            `json:"status"`
-	Result  interface{}    `json:"result,omitempty"`
+	Status  int         `json:"status" example:"200"`
+	Result  interface{} `json:"result,omitempty" `
+	TraceID string      `json:"trace_id" example:"1-trace-it"`
+}
+
+type ErrorResponse struct {
+	Status  int            `json:"status" example:"400"`
 	Error   *ResponseError `json:"error,omitempty"`
-	TraceID string         `json:"trace_id"`
+	TraceID string         `json:"trace_id" example:"1-trace-it"`
 }
 
 type ResponseError struct {
-	Code    int      `json:"code"`
-	Message string   `json:"message"`
-	Details []string `json:"details"`
+	Code    int      `json:"code" example:"400001"`
+	Message string   `json:"message" example:"ErrInvalidRequest"`
+	Details []string `json:"details" example:"error detail1,error detail2"`
 }
 
 func HttpResponseErr(ctx context.Context, w http.ResponseWriter, err error) {
 	httpError := e.NewAPIError(err)
-	res := &Response{
+	res := &ErrorResponse{
 		Status: httpError.Status,
 		Error: &ResponseError{
 			Code:    httpError.Code,

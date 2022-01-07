@@ -59,27 +59,36 @@ type userControllerImpl struct {
 	UserSrv service.UserService `container:"autowire:true;resource:UserService"`
 }
 
-// @Summary: swagger summary
-// @Description: swagger description
-// @Accept: json
-// @Produce: json
-// @Param:  id path int true "Account ID"
-// @Success: 200 {object} dto.GetUserByIDResponse
-// @Failure: 400,404 {object} httputil.HTTPError
-// @Router: /accounts/{id} [get]
+// GetUserByID godoc
+// @Summary      Get Single user information
+// @Description  get string by ID
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param        tenant   path		string	true									"tenant id"
+// @Param        id       path      integer	true  									"user id"
+// @Success      200      {object}  httpx.Response{result=dto.GetUserByIDResponse}	"success response"
+// @Failure      400,500  {object}  httpx.ErrorResponse 							"error response"
+// @Router       /example-api/v1/{tenant}/users/{id} [get]
 func (c *userControllerImpl) GetUserByID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.GetUserByIDResponse, error) {
 	return c.UserSrv.GetUserID(ctx, req)
 }
 
-// @Summary: swagger summary
-// @Description: swagger description
-// @Accept: json
-// @Produce: json
-// @Param:  id path int true "Account ID"
-// @Success: 200 {object} model.Account
-// @Header: 200 {string} Token "qwerty"
-// @Failure: 400,404 {object} httputil.HTTPError
-// @Router: /accounts/{id} [get]
+// ListUser godoc
+// @Summary      list user
+// @Description  list user information
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param        current_user_id 	header 	int		false	"current user id"
+// @Param        tenant   			path   	string  true	"tenant id"
+// @Param        pageSize 			query	int  	true  	"page size"			minimum(1)    	maximum(500)
+// @Param        current  			query	int  	true  	"page number"		minimum(1)
+// @Param        username__ilike 	query 	string 	false 	"username ilike"	minlength(1)  	maxlength(100)
+// @Param        age 				query 	string 	false 	"username ilike"  	minlength(1)  	maxlength(100)
+// @Success      200      	{object}	httpx.Response{result=dto.ListUserResponse}	"success response"
+// @Failure      400,500	{object} 	httpx.ErrorResponse 						"error response"
+// @Router       /example-api/v1/{tenant}/users [get]
 func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error) {
 	return c.UserSrv.ListUser(ctx, req)
 }
