@@ -8,13 +8,17 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
+	"gorm.io/gorm"
 
 	"github.com/PolarPanda611/trinity-micro/core/dbx"
+	"github.com/PolarPanda611/trinity-micro/core/e"
 )
 
 func init() {
@@ -42,7 +46,10 @@ func (r *userRepositoryImpl) GetUserByID(ctx context.Context, tenant string, ID 
 		dbx.WithTenant(tenant, &model.User{}),
 	).
 		Where("id = ?", ID).First(res).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, e.NewError(e.Info, e.ErrRecordNotFound, fmt.Sprintf("userRepositoryImpl.GetUserByID failed tenant: %v id: %v", tenant, ID))
+		}
+		return nil, e.NewError(e.Error, e.ErrExecuteSQL, fmt.Sprintf("userRepositoryImpl.GetUserByID failed tenant: %v id: %v,err: %v ", tenant, ID, err))
 	}
 	return res, nil
 }
@@ -59,7 +66,7 @@ func (r *userRepositoryImpl) ListUser(ctx context.Context, tenant string, query 
 	}
 	res := []model.User{}
 	if err := db.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, e.NewError(e.Error, e.ErrExecuteSQL, fmt.Sprintf("userRepositoryImpl.ListUser failed, tenant: %v, error: %v ", tenant, err))
 	}
 	return res, nil
 }
@@ -76,7 +83,31 @@ func (r *userRepositoryImpl) CountUser(ctx context.Context, tenant string, query
 	}
 	var c int64
 	if err := db.Count(&c).Error; err != nil {
-		return 0, err
+		return 0, e.NewError(e.Error, e.ErrExecuteSQL, fmt.Sprintf("userRepositoryImpl.CountUser failed, tenant: %v, error: %v ", tenant, err))
 	}
 	return c, nil
+}
+
+func (r *userRepositoryImpl) CreateUser(ctx context.Context, tenant string, newUser *model.User) (*model.User, error) {
+	db := dbx.FromCtx(ctx).Scopes(
+		dbx.WithTenant(tenant, &model.User{}),
+	)
+	if err := db.Create(newUser).Error; err != nil {
+		return nil, e.NewError(e.Error, e.ErrExecuteSQL, fmt.Sprintf("userRepositoryImpl.CreateUser failed, tenant: %v, error: %v ", tenant, err))
+	}
+	return newUser, nil
+}
+
+func (r *userRepositoryImpl) UpdateUser(ctx context.Context, tenant string, id uint64, version string, change map[string]interface{}) error {
+	db := dbx.FromCtx(ctx).Scopes(
+		dbx.WithTenant(tenant, &model.User{}),
+	)
+	res := db.Where("id = ?", id).Where("version = ?", version).Updates(change)
+	if err := res.Error; err != nil {
+		return e.NewError(e.Error, e.ErrExecuteSQL, fmt.Sprintf("userRepositoryImpl.UpdateUser failed, tenant: %v, id: %v version: %v, error: %v ", tenant, id, version, err))
+	}
+	if res.RowsAffected != 1 {
+		return e.NewError(e.Info, e.ErrDBUpdateZeroLine, fmt.Sprintf("userRepositoryImpl.UpdateUser tenant: %v, id: %v version: %v 0 rows affected", tenant, id, version))
+	}
+	return nil
 }

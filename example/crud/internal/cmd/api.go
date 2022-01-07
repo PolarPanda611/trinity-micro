@@ -9,6 +9,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -56,22 +57,22 @@ func init() {
 
 // @securityDefinitions.basic  BasicAuth
 func RunAPI(cmd *cobra.Command, args []string) {
-
 	serviceName := fmt.Sprintf("%v-%v", consts.ProjectName, consts.ApiCmdString)
 
 	// infra set up
-	logx.Init(logx.Config{
+	logger := logx.Init(logx.Config{
 		ServiceName: serviceName,
 		LogfilePath: fmt.Sprintf("%v.log", serviceName),
 	})
-	logx.Logger.Infof("%v:%v service starting ", consts.ProjectName, consts.ApiCmdString)
+	log.Printf("%v:%v service starting!\n", consts.ProjectName, consts.ApiCmdString)
+	logger.Infof("%v:%v service starting!", consts.ProjectName, consts.ApiCmdString)
 
 	currentPath, _ := os.Getwd()
 	configPath := filepath.Join(currentPath + "/config/config.toml")
 	if _, err := toml.DecodeFile(configPath, &config.Conf); err != nil {
-		logx.Logger.Fatalf("load config :%v failed, err: %v", configPath, err)
+		logger.Fatalf("load config :%v failed, err: %v", configPath, err)
 	}
-	logx.Logger.Infof("load config: %v successfully", config.Conf)
+	logger.Infof("load config: %v successfully", config.Conf)
 
 	dbx.Init(&dbx.Config{
 		Type:        config.Conf.Database.Type,
@@ -79,7 +80,7 @@ func RunAPI(cmd *cobra.Command, args []string) {
 		TablePrefix: config.Conf.Database.TablePrefix,
 		MaxIdleConn: config.Conf.Database.MaxIdleConn,
 		MaxOpenConn: config.Conf.Database.MaxOpenConn,
-		Logger:      logx.Logger.WithField("app", "database"),
+		Logger:      logger.WithField("app", "database"),
 	})
 	// handle multi tenant initialize
 	{
@@ -90,7 +91,7 @@ func RunAPI(cmd *cobra.Command, args []string) {
 		sessionDB.AutoMigrate(&model.Tenant{})
 		var res []model.Tenant
 		if err := sessionDB.Find(&res).Error; err != nil {
-			logx.Logger.Fatalf("list tenant failed, err: ", err)
+			logger.Fatalf("list tenant failed, err: ", err)
 		}
 		for _, tenant := range res {
 			tenants = append(tenants, fmt.Sprintf("tn_%d", tenant.ID))
@@ -104,10 +105,11 @@ func RunAPI(cmd *cobra.Command, args []string) {
 		Host:        config.Conf.Tracer.Host,
 	})
 	t := trinity.New(trinity.Config{
-		Logger: logx.Logger,
+		Logger: logger,
 	})
 	if err := t.Start(":3000"); err != nil {
-		logx.Logger.Fatalf("service terminated, error:%v", err)
+		log.Printf("%v:%v service terminated, error:%v \n", consts.ProjectName, consts.ApiCmdString, err)
+		logger.Fatalf("%v:%v service terminated, error:%v", consts.ProjectName, consts.ApiCmdString, err)
 	}
 
 }

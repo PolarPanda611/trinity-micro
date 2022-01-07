@@ -42,6 +42,8 @@ func XMLResponse(w http.ResponseWriter, status int, res interface{}) {
 	w.Write(j)
 }
 
+
+
 type Response struct {
 	Status  int         `json:"status" example:"200"`
 	Result  interface{} `json:"result,omitempty" `

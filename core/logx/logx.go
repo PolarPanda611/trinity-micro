@@ -28,9 +28,7 @@ type Config struct {
 	LogfilePath string
 }
 
-var Logger logrus.FieldLogger
-
-func Init(c Config) {
+func Init(c Config) logrus.FieldLogger {
 	log := logrus.New()
 	log.SetFormatter(&logrus.JSONFormatter{})
 	file, err := os.OpenFile(c.LogfilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -38,7 +36,7 @@ func Init(c Config) {
 		log.Fatalf("Failed to log to file, using default stderr, err: %v ", err)
 	}
 	log.SetOutput(file)
-	Logger = log.WithField("service", c.ServiceName)
+	return log.WithField("service", c.ServiceName)
 }
 
 var _ http.ResponseWriter = new(recordResponseWriter)

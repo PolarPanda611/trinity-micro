@@ -57,5 +57,6 @@ var (
 		ErrReadRequestBody:                 "ReadRequestBodyError",
 		ErrDecodeRequestBody:               "DecodeRequestBodyError",
 		ErrPanic:                           "PanicError",
+		ErrDBUpdateZeroLine:                "ErrDBUpdateZeroLine",
 	}
 )

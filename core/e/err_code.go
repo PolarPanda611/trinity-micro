@@ -87,6 +87,12 @@ const (
 	 * @Description:error when decode the request body
 	 */
 	ErrDecodeRequestBody errorCode = 400014
+	//ErrDBUpdateZeroLine
+	/**
+	 * @Author: Daniel TAN
+	 * @Description: 0 rows affected when update the record
+	 */
+	ErrDBUpdateZeroLine errorCode = 400015
 )
 
 // 404 error

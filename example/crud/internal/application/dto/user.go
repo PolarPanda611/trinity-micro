@@ -15,7 +15,7 @@
 package dto
 
 import (
-	"github.com/PolarPanda611/trinity-micro/core/dbx"
+	"github.com/PolarPanda611/trinity-micro/core/httpx"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
 )
 
@@ -64,7 +64,7 @@ func (r *ListUserRequest) ParsePageQuery() *ListUserPageQuery {
 
 type ListUserResponse struct {
 	Data []UserDTO
-	*dbx.PaginationDTO
+	*httpx.PaginationDTO
 }
 
 type UserDTO struct {
@@ -81,7 +81,7 @@ func NewListUserResponse(m []model.User, pageSize, pageNum *uint, total int64) *
 	}
 	return &ListUserResponse{
 		Data:          res,
-		PaginationDTO: dbx.NewPaginationDTO(*pageSize, *pageNum, total),
+		PaginationDTO: httpx.NewPaginationDTO(*pageSize, *pageNum, total),
 	}
 }
 
