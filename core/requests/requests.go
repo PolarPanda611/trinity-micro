@@ -33,37 +33,14 @@ func NewRequest() Requests {
 // will return the err when the response code is not >=200 or <= 300
 // will decode the response to dest even it return error
 func (r *HttpRequest) Call(ctx context.Context, method string, url string, header http.Header, body interface{}, dest interface{}, requestInterceptors ...Interceptor) error {
-	var bodyTemp io.Reader
-	if body != nil {
-		r, ok := body.(io.Reader)
-		if ok {
-			bodyTemp = r
-		} else {
-			var bodyBytes []byte
-			by, ok := body.([]byte)
-			if ok {
-				bodyBytes = by
-			} else {
-				mime := header.Get(HeaderMime)
-				switch mime {
-				case MimeXML, MimeTextXML:
-					var err error
-					bodyBytes, err = xml.Marshal(body)
-					if err != nil {
-						return fmt.Errorf("encode xml error, err: %v", err)
-					}
-				default:
-					var err error
-					bodyBytes, err = json.Marshal(body)
-					if err != nil {
-						return fmt.Errorf("encode json error, err: %v", err)
-					}
-				}
-			}
-			bodyTemp = bytes.NewReader(bodyBytes)
-		}
+	if header == nil {
+		header = make(http.Header)
 	}
-	req, err := http.NewRequest(method, url, bodyTemp)
+	bodyReader, err := buildBody(body, header)
+	if err != nil {
+		return fmt.Errorf("build body reader error, err: %v", err)
+	}
+	req, err := http.NewRequest(method, url, bodyReader)
 	if err != nil {
 		return fmt.Errorf("new request error, err: %v", err)
 	}
@@ -109,4 +86,34 @@ func (r *HttpRequest) Call(ctx context.Context, method string, url string, heade
 	}
 
 	return nil
+}
+
+func buildBody(body interface{}, header http.Header) (io.Reader, error) {
+	var bodyTemp io.Reader
+	if body != nil {
+		switch v := body.(type) {
+		case io.Reader:
+			bodyTemp = v
+		case []byte:
+			bodyBytes := v
+			bodyTemp = bytes.NewReader(bodyBytes)
+		default:
+			mime := header.Get(HeaderMime)
+			switch mime {
+			case MimeXML, MimeTextXML:
+				bodyBytes, err := xml.Marshal(body)
+				if err != nil {
+					return nil, fmt.Errorf("encode xml error, err: %v", err)
+				}
+				bodyTemp = bytes.NewReader(bodyBytes)
+			default:
+				bodyBytes, err := json.Marshal(body)
+				if err != nil {
+					return nil, fmt.Errorf("encode json error, err: %v", err)
+				}
+				bodyTemp = bytes.NewReader(bodyBytes)
+			}
+		}
+	}
+	return bodyTemp, nil
 }

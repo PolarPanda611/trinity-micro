@@ -18,9 +18,9 @@ import (
 	"github.com/PolarPanda611/trinity-micro/core/dbx"
 	"github.com/PolarPanda611/trinity-micro/core/logx"
 	"github.com/PolarPanda611/trinity-micro/core/tracerx"
-	"github.com/PolarPanda611/trinity-micro/example/crud/config"
 	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/http"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
+	"github.com/PolarPanda611/trinity-micro/example/crud/internal/config"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"
 	"gorm.io/gorm"
 
@@ -68,7 +68,7 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	logger.Infof("%v-%v service starting!", consts.ProjectName, consts.ApiCmdString)
 
 	currentPath, _ := os.Getwd()
-	configPath := filepath.Join(currentPath + "/config/config.toml")
+	configPath := filepath.Join(currentPath + "/conf/config.toml")
 	if _, err := toml.DecodeFile(configPath, &config.Conf); err != nil {
 		logger.Fatalf("load config :%v failed, err: %v", configPath, err)
 	}

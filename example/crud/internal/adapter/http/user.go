@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro"
+	"github.com/PolarPanda611/trinity-micro/core/httpx"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/service"
 )
@@ -78,5 +79,10 @@ func (c *userControllerImpl) GetUserByID(ctx context.Context, req *dto.GetUserBy
 // @Failure      400,500  {object}  httpx.ErrorResponse 							"error response"
 // @Router       /example-api/v1/{tenant}/users [post]
 func (c *userControllerImpl) CreateUser(ctx context.Context, req *dto.CreateUserRequest) (*dto.UserInfoResponse, error) {
-	return c.UserSrv.CreateUser(ctx, req)
+	res, err := c.UserSrv.CreateUser(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	httpx.SetHttpStatusCode(ctx, 201)
+	return res, nil
 }

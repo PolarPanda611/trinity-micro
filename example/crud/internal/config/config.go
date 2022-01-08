@@ -16,7 +16,6 @@ type Tracer struct {
 }
 
 type Application struct {
-	PageSize uint `toml:"page_size"`
 }
 type Config struct {
 	Database    Database    `toml:"database"`
