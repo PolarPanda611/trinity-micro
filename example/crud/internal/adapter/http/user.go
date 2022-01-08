@@ -27,6 +27,9 @@ func init() {
 		trinity.NewRequestMapping("POST", "", "CreateUser",
 			apiHandler...,
 		),
+		trinity.NewRequestMapping("PATCH", "/{id}", "UpdateUser",
+			apiHandler...,
+		),
 	)
 }
 
@@ -85,4 +88,20 @@ func (c *userControllerImpl) CreateUser(ctx context.Context, req *dto.CreateUser
 	}
 	httpx.SetHttpStatusCode(ctx, 201)
 	return res, nil
+}
+
+// CreateUser godoc
+// @Summary      Get Single user information
+// @Description  get string by ID
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param        tenant   path		string	true										"tenant id"
+// @Param        id       path      integer	true  									"user id"
+// @Success      200      {object}  httpx.SuccessResponse{result=dto.UserInfoResponse}	"success response"
+// @Failure      400,500  {object}  httpx.ErrorResponse 								"error response"
+// @Router       /example-api/v1/{tenant}/users{id} [patch]
+func (c *userControllerImpl) UpdateUser(ctx context.Context, req *dto.UpdateUserRequest) error {
+	return c.UserSrv.UpdateUser(ctx, req)
+
 }

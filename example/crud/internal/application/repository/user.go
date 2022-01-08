@@ -15,6 +15,7 @@ import (
 	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 
 	"github.com/PolarPanda611/trinity-micro/core/dbx"
@@ -36,7 +37,7 @@ type UserRepository interface {
 	ListUser(ctx context.Context, tenant string, query *dto.ListUserPageQuery) ([]model.User, error)
 	CountUser(ctx context.Context, tenant string, query *dto.ListUserQuery) (int64, error)
 	CreateUser(ctx context.Context, tenant string, newUser *model.User) (*model.User, error)
-	UpdateUser(ctx context.Context, tenant string, id uint64, version string, change map[string]interface{}) error
+	UpdateUser(ctx context.Context, tenant string, id uint64, version string, updateUserForm *dto.UpdateUserForm) error
 }
 
 type userRepositoryImpl struct {
@@ -101,11 +102,15 @@ func (r *userRepositoryImpl) CreateUser(ctx context.Context, tenant string, newU
 	return newUser, nil
 }
 
-func (r *userRepositoryImpl) UpdateUser(ctx context.Context, tenant string, id uint64, version string, change map[string]interface{}) error {
+func (r *userRepositoryImpl) UpdateUser(ctx context.Context, tenant string, id uint64, version string, updateUserForm *dto.UpdateUserForm) error {
 	db := dbx.FromCtx(ctx).Scopes(
 		dbx.WithTenant(tenant, &model.User{}),
 	)
-	res := db.Where("id = ?", id).Where("version = ?", version).Updates(change)
+	res := db.Where("id = ?", id).Where("version = ?", version).Updates(map[string]interface{}{
+		"age":     updateUserForm.Age,
+		"gender":  updateUserForm.Gender,
+		"version": uuid.NewV4().String(),
+	})
 	if err := res.Error; err != nil {
 		return e.NewError(e.Error, e.ErrExecuteSQL, fmt.Sprintf("userRepositoryImpl.UpdateUser failed, tenant: %v, id: %v version: %v, error: %v ", tenant, id, version, err))
 	}

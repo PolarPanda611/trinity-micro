@@ -204,6 +204,14 @@ func Parse(r *http.Request, v interface{}) error {
 						}
 					}
 					val.Set(reflect.ValueOf(bodyVal))
+				case reflect.Ptr:
+					newDest := reflect.New(val.Type().Elem()).Interface()
+					if len(respBytes) > 0 {
+						if err := json.Unmarshal(respBytes, newDest); err != nil {
+							return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes)))
+						}
+					}
+					val.Set(reflect.ValueOf(newDest))
 				default:
 					return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("unsupported type , only support string , struct ,Slice ,  map[string]interface{} , interface{} , []byte, actual: %v", val.Type().Kind()))
 				}

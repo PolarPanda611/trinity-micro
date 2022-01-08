@@ -27,7 +27,8 @@ func init() {
 type UserService interface {
 	GetUserID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.UserInfoResponse, error)
 	ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error)
-	CreateUser(ctx context.Context, newUser *dto.CreateUserRequest) (*dto.UserInfoResponse, error)
+	CreateUser(ctx context.Context, createUserForm *dto.CreateUserRequest) (*dto.UserInfoResponse, error)
+	UpdateUser(ctx context.Context, updateUserForm *dto.UpdateUserRequest) error
 }
 
 type userServiceImpl struct {
@@ -55,7 +56,7 @@ func (s *userServiceImpl) GetUserID(ctx context.Context, req *dto.GetUserByIDReq
 }
 
 func (s *userServiceImpl) CreateUser(ctx context.Context, req *dto.CreateUserRequest) (*dto.UserInfoResponse, error) {
-	if err := req.Validate(); err != nil {
+	if err := req.CreateUserFrom.Validate(); err != nil {
 		return nil, e.NewError(e.Info, e.ErrInvalidRequest, err.Error())
 	}
 	user, err := s.UserRepo.CreateUser(ctx, req.Tenant, req.Parse())
@@ -63,4 +64,11 @@ func (s *userServiceImpl) CreateUser(ctx context.Context, req *dto.CreateUserReq
 		return nil, err
 	}
 	return dto.NewUserInfoResponse(user), nil
+}
+
+func (s *userServiceImpl) UpdateUser(ctx context.Context, req *dto.UpdateUserRequest) error {
+	if err := req.UpdateUserForm.Validate(); err != nil {
+		return e.NewError(e.Info, e.ErrInvalidRequest, err.Error())
+	}
+	return s.UserRepo.UpdateUser(ctx, req.Tenant, req.ID, req.Version, req.UpdateUserForm)
 }

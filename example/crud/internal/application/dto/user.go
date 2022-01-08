@@ -16,6 +16,7 @@ package dto
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
@@ -29,36 +30,62 @@ type GetUserByIDRequest struct {
 
 type CreateUserRequest struct {
 	*TenantRequest
-	CurrentUserID uint64     `header_param:"current_user_id"`
-	NewUser       NewUserDTO `body_param:""`
+	CurrentUserID  uint64         `header_param:"current_user_id"`
+	CreateUserFrom CreateUserFrom `body_param:""`
 }
 
-func (r *CreateUserRequest) Validate() error {
-	if r.NewUser.Email == "" {
+func (r *CreateUserRequest) Parse() *model.User {
+	return &model.User{
+		Username: r.CreateUserFrom.Username,
+		Password: r.CreateUserFrom.Password,
+		Email:    r.CreateUserFrom.Email,
+	}
+}
+
+type CreateUserFrom struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+}
+
+func (r *CreateUserFrom) Validate() error {
+	if r.Email == "" {
 		return errors.New("email cannot be empty")
 	}
-	if r.NewUser.Username == "" {
+	if r.Username == "" {
 		return errors.New("username cannot be empty")
 	}
-	if len(r.NewUser.Password) < 8 {
+	if len(r.Password) < 8 {
 		return errors.New("password cannot be less then 8")
 	}
 	return nil
 }
 
-func (r *CreateUserRequest) Parse() *model.User {
-	return &model.User{
-		Username: r.NewUser.Username,
-		Password: r.NewUser.Password,
-		Email:    r.NewUser.Email,
-	}
+type UpdateUserRequest struct {
+	*TenantRequest
+	ID             uint64          `path_param:"id"`
+	CurrentUserID  uint64          `header_param:"current_user_id"`
+	Version        string          `header_param:"x-data-version" validate:"required"`
+	UpdateUserForm *UpdateUserForm `body_param:""`
 }
 
-type NewUserDTO struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+type UpdateUserForm struct {
+	Age    int   `json:"age"`
+	Gender *uint `json:"gender"`
 }
+
+func (d *UpdateUserForm) Validate() error {
+	if d.Age < 0 && d.Age > 130 {
+		return fmt.Errorf("age is out of range, actual: %v", d.Age)
+	}
+	if d.Gender != nil {
+		if *d.Gender != 1 && *d.Gender != 2 {
+			return fmt.Errorf("gender is invalid, actual: %v", *d.Gender)
+		}
+	}
+	return nil
+}
+
 type UserInfoResponse UserInfoDTO
 
 type ListUserRequest struct {
@@ -106,6 +133,24 @@ type UserInfoDTO struct {
 	Email    string `json:"email"  example:"daniel@trinity.com"`
 	Age      int    `json:"age" example:"18"`
 	Gender   string `json:"gender" enums:"male,female" example:"male"`
+	Version  string `json:"version"`
+}
+
+func NewUserInfoDTO(m *model.User) *UserInfoDTO {
+	d := &UserInfoDTO{
+		ID:       m.ID,
+		Username: m.Username,
+		Email:    m.Email,
+		Age:      int(m.Age),
+		Version:  m.Version,
+	}
+	switch m.Gender {
+	case 1:
+		d.Gender = "male"
+	case 2:
+		d.Gender = "female"
+	}
+	return d
 }
 
 func NewListUserResponse(m []model.User, pageSize, pageNum int, total int64) *ListUserResponse {
@@ -116,15 +161,6 @@ func NewListUserResponse(m []model.User, pageSize, pageNum int, total int64) *Li
 	return &ListUserResponse{
 		Data:          res,
 		PaginationDTO: httpx.NewPaginationDTO(pageSize, pageNum, total),
-	}
-}
-
-func NewUserInfoDTO(m *model.User) *UserInfoDTO {
-	return &UserInfoDTO{
-		ID:       m.ID,
-		Username: m.Username,
-		Email:    m.Email,
-		Age:      int(m.Age),
 	}
 }
 
