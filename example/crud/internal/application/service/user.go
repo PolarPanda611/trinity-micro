@@ -12,7 +12,6 @@ import (
 
 	"github.com/PolarPanda611/trinity-micro"
 	"github.com/PolarPanda611/trinity-micro/core/e"
-	"github.com/PolarPanda611/trinity-micro/example/crud/config"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/dto"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/repository"
 )
@@ -36,13 +35,6 @@ type userServiceImpl struct {
 }
 
 func (s *userServiceImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error) {
-	if req.PageNum == nil {
-		var i uint = 1
-		req.PageNum = &i
-	}
-	if req.PageSize == nil {
-		req.PageSize = &config.Conf.Application.PageSize
-	}
 	users, err := s.UserRepo.ListUser(ctx, req.Tenant, req.ParsePageQuery())
 	if err != nil {
 		return nil, err

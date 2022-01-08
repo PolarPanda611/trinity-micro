@@ -156,11 +156,11 @@ func (t *Trinity) diRouter() {
 		for _, requestMapping := range controller.requestMaps {
 			urlPath := filepath.Join(controller.rootPath, requestMapping.subPath)
 			h := http.HandlerFunc(DIHandler(t.container, controller.instanceName, requestMapping.funcName, requestMapping.isRaw))
-			for _, f := range requestMapping.handlers {
-				h = f(h).ServeHTTP
+			for i := len(requestMapping.handlers) - 1; i >= 0; i-- {
+				h = requestMapping.handlers[i](h).ServeHTTP
 			}
 			t.mux.MethodFunc(requestMapping.method, urlPath, h)
-			t.log.Infof("router register handler: %-6s %-30s => %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
+			t.log.Infof("router   register handler: %-6s %-30s => %v.%v ", requestMapping.method, urlPath, controller.instanceName, requestMapping.funcName)
 		}
 	}
 }

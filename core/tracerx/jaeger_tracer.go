@@ -117,11 +117,10 @@ func ChiOpenTracer(options ...MWOption) func(next http.Handler) http.Handler {
 				traceID = sc.TraceID().String()
 			}
 			newCtx := logx.InjectCtx(r.Context(), logx.FromCtx(r.Context()).WithField(TraceIDKey, traceID))
-			r = r.WithContext(opentracing.ContextWithSpan(newCtx, sp))
 			ww := &copyStatusWriter{
 				w: w,
 			}
-			next.ServeHTTP(ww, r)
+			next.ServeHTTP(ww, r.WithContext(opentracing.ContextWithSpan(newCtx, sp)))
 			ext.HTTPStatusCode.Set(sp, uint16(ww.status))
 			sp.Finish()
 		})

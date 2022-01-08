@@ -59,6 +59,7 @@ func (r *userRepositoryImpl) GetUserByID(ctx context.Context, tenant string, ID 
 func (r *userRepositoryImpl) ListUser(ctx context.Context, tenant string, query *dto.ListUserPageQuery) ([]model.User, error) {
 	db := dbx.FromCtx(ctx).Scopes(
 		dbx.WithTenant(tenant, &model.User{}),
+		dbx.WithPagenation(query.PageNum, query.PageSize),
 	)
 	if query.UsernameIlike != nil {
 		db = db.Where("username ilike ?", "%"+*query.UsernameIlike+"%")

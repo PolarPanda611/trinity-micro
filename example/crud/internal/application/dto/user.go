@@ -70,8 +70,8 @@ type ListUserRequest struct {
 }
 
 type ListUserPageQuery struct {
-	PageSize *uint
-	PageNum  *uint
+	PageSize int
+	PageNum  int
 	*ListUserQuery
 }
 type ListUserQuery struct {
@@ -108,14 +108,14 @@ type UserInfoDTO struct {
 	Gender   string `json:"gender" enums:"male,female" example:"male"`
 }
 
-func NewListUserResponse(m []model.User, pageSize, pageNum *uint, total int64) *ListUserResponse {
+func NewListUserResponse(m []model.User, pageSize, pageNum int, total int64) *ListUserResponse {
 	res := make([]UserInfoDTO, len(m))
 	for i, v := range m {
 		res[i] = *NewUserInfoDTO(&v)
 	}
 	return &ListUserResponse{
 		Data:          res,
-		PaginationDTO: httpx.NewPaginationDTO(*pageSize, *pageNum, total),
+		PaginationDTO: httpx.NewPaginationDTO(pageSize, pageNum, total),
 	}
 }
 

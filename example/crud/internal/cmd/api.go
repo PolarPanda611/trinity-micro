@@ -19,7 +19,7 @@ import (
 	"github.com/PolarPanda611/trinity-micro/core/logx"
 	"github.com/PolarPanda611/trinity-micro/core/tracerx"
 	"github.com/PolarPanda611/trinity-micro/example/crud/config"
-	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/controller"
+	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/http"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"
 	"gorm.io/gorm"
@@ -64,8 +64,8 @@ func RunAPI(cmd *cobra.Command, args []string) {
 		ServiceName: serviceName,
 		LogfilePath: fmt.Sprintf("%v.log", serviceName),
 	})
-	log.Printf("%v:%v service starting!\n", consts.ProjectName, consts.ApiCmdString)
-	logger.Infof("%v:%v service starting!", consts.ProjectName, consts.ApiCmdString)
+	log.Printf("%v-%v service starting!\n", consts.ProjectName, consts.ApiCmdString)
+	logger.Infof("%v-%v service starting!", consts.ProjectName, consts.ApiCmdString)
 
 	currentPath, _ := os.Getwd()
 	configPath := filepath.Join(currentPath + "/config/config.toml")
@@ -108,8 +108,8 @@ func RunAPI(cmd *cobra.Command, args []string) {
 		Logger: logger,
 	})
 	if err := t.Start(":3000"); err != nil {
-		log.Printf("%v:%v service terminated, error:%v \n", consts.ProjectName, consts.ApiCmdString, err)
-		logger.Fatalf("%v:%v service terminated, error:%v", consts.ProjectName, consts.ApiCmdString, err)
+		log.Printf("%v-%v service terminated, error:%v \n", consts.ProjectName, consts.ApiCmdString, err)
+		logger.Fatalf("%v-%v service terminated, error:%v", consts.ProjectName, consts.ApiCmdString, err)
 	}
 
 }

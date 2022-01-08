@@ -21,3 +21,14 @@ func WithTenant(tenant string, m interface{}) func(db *gorm.DB) *gorm.DB {
 		return db.Table(tenant + "." + stmt.Schema.Table)
 	}
 }
+
+// WithPagenation
+// build the gorm condition with page_num and page_size
+// the page_num start from 1
+func WithPagenation(pageNum int, pageSize int) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		limit := pageSize
+		offset := (pageNum - 1) * pageSize
+		return db.Limit(limit).Offset(offset)
+	}
+}

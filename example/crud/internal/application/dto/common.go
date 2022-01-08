@@ -11,6 +11,6 @@ type TenantRequest struct {
 }
 
 type PageRequest struct {
-	PageSize *uint `query_param:"page_size" validate:"required,min=1,max=500"`
-	PageNum  *uint `query_param:"page_num"  validate:"required,min=1"`
+	PageSize int `query_param:"page_size" validate:"required,min=1,max=500"`
+	PageNum  int `query_param:"page_num"  validate:"required,min=1"`
 }

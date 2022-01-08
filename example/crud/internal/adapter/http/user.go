@@ -1,10 +1,4 @@
-// Author: Daniel TAN
-// Date: 2021-08-18 23:39:51
-// LastEditors: Daniel TAN
-// LastEditTime: 2021-10-04 01:27:48
-// FilePath: /trinity-micro/example/crud/internal/adapter/controller/user.go
-// Description:
-package controller
+package http
 
 import (
 	"context"
