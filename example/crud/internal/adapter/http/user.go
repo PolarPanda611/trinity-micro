@@ -46,7 +46,7 @@ type userControllerImpl struct {
 // @Param        current  			query	int  	true  	"page number"		minimum(1)
 // @Param        username__ilike 	query 	string 	false 	"username ilike"	minlength(1)  	maxlength(100)
 // @Param        age 				query 	string 	false 	"username ilike"  	minlength(1)  	maxlength(100)
-// @Success      200      	{object}	httpx.Response{result=dto.ListUserResponse}	"success response"
+// @Success      200      	{object}	httpx.SuccessResponse{result=dto.ListUserResponse}	"success response"
 // @Failure      400,500	{object} 	httpx.ErrorResponse 						"error response"
 // @Router       /example-api/v1/{tenant}/users [get]
 func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequest) (*dto.ListUserResponse, error) {
@@ -61,7 +61,7 @@ func (c *userControllerImpl) ListUser(ctx context.Context, req *dto.ListUserRequ
 // @Produce      json
 // @Param        tenant   path		string	true									"tenant id"
 // @Param        id       path      integer	true  									"user id"
-// @Success      200      {object}  httpx.Response{result=dto.UserInfoResponse}	"success response"
+// @Success      200      {object}  httpx.SuccessResponse{result=dto.UserInfoResponse}	"success response"
 // @Failure      400,500  {object}  httpx.ErrorResponse 							"error response"
 // @Router       /example-api/v1/{tenant}/users/{id} [get]
 func (c *userControllerImpl) GetUserByID(ctx context.Context, req *dto.GetUserByIDRequest) (*dto.UserInfoResponse, error) {
@@ -74,9 +74,9 @@ func (c *userControllerImpl) GetUserByID(ctx context.Context, req *dto.GetUserBy
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        tenant   path		string	true									"tenant id"
-// @Success      200      {object}  httpx.Response{result=dto.UserInfoResponse}		"success response"
-// @Failure      400,500  {object}  httpx.ErrorResponse 							"error response"
+// @Param        tenant   path		string	true										"tenant id"
+// @Success      201      {object}  httpx.SuccessResponse{result=dto.UserInfoResponse}	"success response"
+// @Failure      400,500  {object}  httpx.ErrorResponse 								"error response"
 // @Router       /example-api/v1/{tenant}/users [post]
 func (c *userControllerImpl) CreateUser(ctx context.Context, req *dto.CreateUserRequest) (*dto.UserInfoResponse, error) {
 	res, err := c.UserSrv.CreateUser(ctx, req)

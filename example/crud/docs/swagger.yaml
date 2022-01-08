@@ -1,23 +1,5 @@
 basePath: /
 definitions:
-  dto.GetUserByIDResponse:
-    properties:
-      age:
-        example: 18
-        type: integer
-      gender:
-        enum:
-        - male
-        - female
-        example: male
-        type: string
-      id:
-        example: "1479429646645936128"
-        type: string
-      username:
-        example: Daniel
-        type: string
-    type: object
   dto.ListUserResponse:
     properties:
       current:
@@ -25,7 +7,7 @@ definitions:
         type: integer
       data:
         items:
-          $ref: '#/definitions/dto.UserDTO'
+          $ref: '#/definitions/dto.UserInfoDTO'
         type: array
       page_size:
         example: 20
@@ -37,11 +19,14 @@ definitions:
         example: 6
         type: integer
     type: object
-  dto.UserDTO:
+  dto.UserInfoDTO:
     properties:
       age:
         example: 18
         type: integer
+      email:
+        example: daniel@trinity.com
+        type: string
       gender:
         enum:
         - male
@@ -55,28 +40,28 @@ definitions:
         example: Daniel
         type: string
     type: object
-  httpx.ErrorResponse:
+  dto.UserInfoResponse:
     properties:
-      error:
-        $ref: '#/definitions/httpx.ResponseError'
-      status:
-        example: 400
+      age:
+        example: 18
         type: integer
-      trace_id:
-        example: 1-trace-it
+      email:
+        example: daniel@trinity.com
+        type: string
+      gender:
+        enum:
+        - male
+        - female
+        example: male
+        type: string
+      id:
+        example: "1479429646645936128"
+        type: string
+      username:
+        example: Daniel
         type: string
     type: object
-  httpx.Response:
-    properties:
-      result: {}
-      status:
-        example: 200
-        type: integer
-      trace_id:
-        example: 1-trace-it
-        type: string
-    type: object
-  httpx.ResponseError:
+  httpx.ErrorInfo:
     properties:
       code:
         example: 400001
@@ -90,6 +75,27 @@ definitions:
         type: array
       message:
         example: ErrInvalidRequest
+        type: string
+    type: object
+  httpx.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/httpx.ErrorInfo'
+      status:
+        example: 400
+        type: integer
+      trace_id:
+        example: 1-trace-it
+        type: string
+    type: object
+  httpx.SuccessResponse:
+    properties:
+      result: {}
+      status:
+        example: 200
+        type: integer
+      trace_id:
+        example: 1-trace-it
         type: string
     type: object
 host: localhost:3000
@@ -153,7 +159,7 @@ paths:
           description: success response
           schema:
             allOf:
-            - $ref: '#/definitions/httpx.Response'
+            - $ref: '#/definitions/httpx.SuccessResponse'
             - properties:
                 result:
                   $ref: '#/definitions/dto.ListUserResponse'
@@ -167,6 +173,39 @@ paths:
           schema:
             $ref: '#/definitions/httpx.ErrorResponse'
       summary: list user
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: tenant id
+        in: path
+        name: tenant
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: success response
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpx.SuccessResponse'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.UserInfoResponse'
+              type: object
+        "400":
+          description: error response
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: error response
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Get Single user information
       tags:
       - User
   /example-api/v1/{tenant}/users/{id}:
@@ -192,10 +231,10 @@ paths:
           description: success response
           schema:
             allOf:
-            - $ref: '#/definitions/httpx.Response'
+            - $ref: '#/definitions/httpx.SuccessResponse'
             - properties:
                 result:
-                  $ref: '#/definitions/dto.GetUserByIDResponse'
+                  $ref: '#/definitions/dto.UserInfoResponse'
               type: object
         "400":
           description: error response

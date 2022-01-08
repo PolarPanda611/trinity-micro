@@ -99,13 +99,67 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httpx.Response"
+                                    "$ref": "#/definitions/httpx.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "result": {
                                             "$ref": "#/definitions/dto.ListUserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "error response",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "error response",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "get string by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Single user information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "tenant id",
+                        "name": "tenant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "success response",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httpx.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "$ref": "#/definitions/dto.UserInfoResponse"
                                         }
                                     }
                                 }
@@ -162,13 +216,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httpx.Response"
+                                    "$ref": "#/definitions/httpx.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "result": {
-                                            "$ref": "#/definitions/dto.GetUserByIDResponse"
+                                            "$ref": "#/definitions/dto.UserInfoResponse"
                                         }
                                     }
                                 }
@@ -192,31 +246,6 @@ var doc = `{
         }
     },
     "definitions": {
-        "dto.GetUserByIDResponse": {
-            "type": "object",
-            "properties": {
-                "age": {
-                    "type": "integer",
-                    "example": 18
-                },
-                "gender": {
-                    "type": "string",
-                    "enum": [
-                        "male",
-                        "female"
-                    ],
-                    "example": "male"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "1479429646645936128"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "Daniel"
-                }
-            }
-        },
         "dto.ListUserResponse": {
             "type": "object",
             "properties": {
@@ -227,7 +256,7 @@ var doc = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.UserDTO"
+                        "$ref": "#/definitions/dto.UserInfoDTO"
                     }
                 },
                 "page_size": {
@@ -244,12 +273,16 @@ var doc = `{
                 }
             }
         },
-        "dto.UserDTO": {
+        "dto.UserInfoDTO": {
             "type": "object",
             "properties": {
                 "age": {
                     "type": "integer",
                     "example": 18
+                },
+                "email": {
+                    "type": "string",
+                    "example": "daniel@trinity.com"
                 },
                 "gender": {
                     "type": "string",
@@ -269,37 +302,36 @@ var doc = `{
                 }
             }
         },
-        "httpx.ErrorResponse": {
+        "dto.UserInfoResponse": {
             "type": "object",
             "properties": {
-                "error": {
-                    "$ref": "#/definitions/httpx.ResponseError"
-                },
-                "status": {
+                "age": {
                     "type": "integer",
-                    "example": 400
+                    "example": 18
                 },
-                "trace_id": {
+                "email": {
                     "type": "string",
-                    "example": "1-trace-it"
+                    "example": "daniel@trinity.com"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "male",
+                        "female"
+                    ],
+                    "example": "male"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1479429646645936128"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "Daniel"
                 }
             }
         },
-        "httpx.Response": {
-            "type": "object",
-            "properties": {
-                "result": {},
-                "status": {
-                    "type": "integer",
-                    "example": 200
-                },
-                "trace_id": {
-                    "type": "string",
-                    "example": "1-trace-it"
-                }
-            }
-        },
-        "httpx.ResponseError": {
+        "httpx.ErrorInfo": {
             "type": "object",
             "properties": {
                 "code": {
@@ -319,6 +351,36 @@ var doc = `{
                 "message": {
                     "type": "string",
                     "example": "ErrInvalidRequest"
+                }
+            }
+        },
+        "httpx.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/httpx.ErrorInfo"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "trace_id": {
+                    "type": "string",
+                    "example": "1-trace-it"
+                }
+            }
+        },
+        "httpx.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "result": {},
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "trace_id": {
+                    "type": "string",
+                    "example": "1-trace-it"
                 }
             }
         }
