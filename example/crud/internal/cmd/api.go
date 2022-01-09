@@ -18,7 +18,7 @@ import (
 	"github.com/PolarPanda611/trinity-micro/core/dbx"
 	"github.com/PolarPanda611/trinity-micro/core/logx"
 	"github.com/PolarPanda611/trinity-micro/core/tracerx"
-	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/http"
+	_ "github.com/PolarPanda611/trinity-micro/example/crud/internal/adapter/controller"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/application/model"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/config"
 	"github.com/PolarPanda611/trinity-micro/example/crud/internal/consts"

@@ -1,4 +1,4 @@
-package http
+package controller
 
 import (
 	"context"
@@ -96,8 +96,9 @@ func (c *userControllerImpl) CreateUser(ctx context.Context, req *dto.CreateUser
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        tenant   path		string	true										"tenant id"
-// @Param        id       path      integer	true  									"user id"
+// @Param        tenant   			path		string	true							"tenant id"
+// @Param        id       			path      	integer	true  							"user id"
+// @Param        x-data-version		header      string	true  							"data version"
 // @Success      200      {object}  httpx.SuccessResponse{result=dto.UserInfoResponse}	"success response"
 // @Failure      400,500  {object}  httpx.ErrorResponse 								"error response"
 // @Router       /example-api/v1/{tenant}/users{id} [patch]
