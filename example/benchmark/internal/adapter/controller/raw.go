@@ -16,7 +16,7 @@ import (
 )
 
 func SimpleRaw(w http.ResponseWriter, r *http.Request) {
-	res := httpx.Response{
+	res := httpx.SuccessResponse{
 		Status: 200,
 		Result: "ok",
 	}
@@ -28,7 +28,7 @@ func SimpleRaw(w http.ResponseWriter, r *http.Request) {
 func PathParamRaw(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, _ := strconv.Atoi(idStr)
-	res := httpx.Response{
+	res := httpx.SuccessResponse{
 		Status: 200,
 		Result: id,
 	}

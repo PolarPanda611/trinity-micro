@@ -188,13 +188,13 @@ func (t *Trinity) routerSelfCheck() {
 
 }
 
-func (t *Trinity) Start(addr ...string) error {
+func (t *Trinity) ServeHTTP(addr ...string) error {
 	t.diRouter()
 	address := ":http"
 	if len(addr) > 0 {
 		address = addr[0]
 	}
-	t.log.Infof("service started at %v", address)
+	t.log.Infof("http service started at %v", address)
 	gErr := make(chan error)
 	go func() {
 		gErr <- http.ListenAndServe(address, t.mux)

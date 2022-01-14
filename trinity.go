@@ -65,17 +65,3 @@ func New(c ...Config) *Trinity {
 	ins.initInstance()
 	return ins
 }
-
-func (t *Trinity) GetInstance(resourceName string) (interface{}, map[string]interface{}) {
-	injectMap := injectMapPool.Get().(map[string]interface{})
-	ins := t.container.GetInstance(resourceName, injectMap)
-	return ins, injectMap
-}
-
-func (t *Trinity) PutInstance(insName string, injectMap map[string]interface{}, ins interface{}) {
-	for k, v := range injectMap {
-		t.container.Release(k, v)
-		delete(injectMap, k)
-	}
-	injectMapPool.Put(injectMap)
-}

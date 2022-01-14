@@ -107,7 +107,7 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	t := trinity.New(trinity.Config{
 		Logger: logger,
 	})
-	if err := t.Start(":3000"); err != nil {
+	if err := t.ServeHTTP(":3000"); err != nil {
 		log.Printf("%v-%v service terminated, error:%v \n", consts.ProjectName, consts.ApiCmdString, err)
 		logger.Fatalf("%v-%v service terminated, error:%v", consts.ProjectName, consts.ApiCmdString, err)
 	}

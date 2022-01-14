@@ -34,8 +34,15 @@ func (t *Trinity) AddCronJobs(resourceName string, spec string, cmd func(srv int
 	t.Lock()
 	defer t.Unlock()
 	t.cron.AddFunc(spec, func() {
-		ins, injectMap := t.GetInstance(resourceName)
-		defer t.PutInstance(resourceName, injectMap, ins)
+		injectMap := injectMapPool.Get().(map[string]interface{})
+		ins := t.container.GetInstance(resourceName, injectMap)
+		defer func() {
+			for k, v := range injectMap {
+				t.container.Release(k, v)
+				delete(injectMap, k)
+			}
+			injectMapPool.Put(injectMap)
+		}()
 		cmd(ins)
 	})
 	jobName := resourceName

@@ -88,7 +88,7 @@ func RunAPI(cmd *cobra.Command, args []string) {
 	logx.Logger.Infof("router register handler: %-6s %-30s => %v ", "GET", "/benchmark/simple_raw", "SimpleRaw")
 	t.Get("/benchmark/path_param_raw/{id}", controller.PathParamRaw)
 	logx.Logger.Infof("router register handler: %-6s %-30s => %v ", "GET", "/benchmark/path_param_raw/{id}", "SimpleRaw")
-	if err := t.Start(":3000"); err != nil {
+	if err := t.ServeHTTP(":3000"); err != nil {
 		logx.Logger.Fatalf("service terminated, error:%v", err)
 	}
 }
