@@ -17,7 +17,6 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/PolarPanda611/trinity-micro/core/e"
 	"github.com/PolarPanda611/trinity-micro/core/utils"
 
 	"github.com/go-chi/chi/v5"
@@ -113,7 +112,7 @@ func Parse(r *http.Request, v interface{}) error {
 		if pathParam, isExist := inType.Field(index).Tag.Lookup("path_param"); isExist {
 			paramValString := chi.URLParam(r, pathParam)
 			if err := utils.StringConverter(paramValString, &val); err != nil {
-				return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("path param %v converted error, cannot set , err:%v  val : %v  ", inType.Field(index).Name, err, paramValString))
+				return fmt.Errorf("path param %v converted error, cannot set , err:%v  val : %v  ", inType.Field(index).Name, err, paramValString)
 			}
 			continue
 		}
@@ -146,16 +145,16 @@ func Parse(r *http.Request, v interface{}) error {
 						}
 						val.Set(reflect.ValueOf(res))
 					default:
-						return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("unsupported map type to decode query param , actual:%v", inType.Field(index).Type.String()))
+						return fmt.Errorf("unsupported map type to decode query param , actual:%v", inType.Field(index).Type.String())
 					}
 				default:
-					return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v get all query param converted error, only support string , val : %v ", inType.Field(index).Name, r.URL.RawQuery))
+					return fmt.Errorf("param %v get all query param converted error, only support string , val : %v ", inType.Field(index).Name, r.URL.RawQuery)
 				}
 			} else {
 				if _defaultQueryParser.Exist(r.URL.Query(), queryParam) {
 					queryValString := _defaultQueryParser.Get(r.URL.Query(), queryParam)
 					if err := utils.StringConverter(queryValString, &val); err != nil {
-						return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, queryValString))
+						return fmt.Errorf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, queryValString)
 					}
 				}
 			}
@@ -165,7 +164,7 @@ func Parse(r *http.Request, v interface{}) error {
 		if bodyParam, isExist := inType.Field(index).Tag.Lookup("body_param"); isExist {
 			respBytes, err := ioutil.ReadAll(r.Body)
 			if err != nil {
-				return e.NewError(e.Error, e.ErrReadRequestBody, fmt.Sprintf("read request body error  , err : %v ", err))
+				return fmt.Errorf("read request body error  , err : %v ", err)
 			}
 			r.Body = ioutil.NopCloser(bytes.NewBuffer(respBytes))
 			if bodyParam == "" {
@@ -179,20 +178,20 @@ func Parse(r *http.Request, v interface{}) error {
 					} else {
 						targetVal := reflect.New(inType.Field(index).Type).Interface()
 						if err := json.Unmarshal(respBytes, targetVal); err != nil {
-							return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes)))
+							return fmt.Errorf("param %v converted error, err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes))
 						}
 						val.Set(reflect.Indirect(reflect.ValueOf(targetVal)))
 					}
 				case reflect.Map:
 					if fmt.Sprintf("%v", inType.Field(index).Type) != "map[string]interface {}" {
-						return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("param %v converted error, map only support map[string]interface{}, val : %v ", inType.Field(index).Name, string(respBytes)))
+						return fmt.Errorf("param %v converted error, map only support map[string]interface{}, val : %v ", inType.Field(index).Name, string(respBytes))
 					}
 					bodyVal := make(map[string]interface{})
 					if len(respBytes) > 0 {
 						d := json.NewDecoder(bytes.NewReader(respBytes))
 						d.UseNumber()
 						if err := d.Decode(&bodyVal); err != nil {
-							return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes)))
+							return fmt.Errorf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes))
 						}
 					}
 					val.Set(reflect.ValueOf(bodyVal))
@@ -200,7 +199,7 @@ func Parse(r *http.Request, v interface{}) error {
 					var bodyVal interface{}
 					if len(respBytes) > 0 {
 						if err := json.Unmarshal(respBytes, &bodyVal); err != nil {
-							return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes)))
+							return fmt.Errorf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes))
 						}
 					}
 					val.Set(reflect.ValueOf(bodyVal))
@@ -208,23 +207,23 @@ func Parse(r *http.Request, v interface{}) error {
 					newDest := reflect.New(val.Type().Elem()).Interface()
 					if len(respBytes) > 0 {
 						if err := json.Unmarshal(respBytes, newDest); err != nil {
-							return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes)))
+							return fmt.Errorf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes))
 						}
 					}
 					val.Set(reflect.ValueOf(newDest))
 				default:
-					return e.NewError(e.Error, e.ErrDIParam, fmt.Sprintf("unsupported type , only support string , struct ,Slice ,  map[string]interface{} , interface{} , []byte, actual: %v", val.Type().Kind()))
+					return fmt.Errorf("unsupported type , only support string , struct ,Slice ,  map[string]interface{} , interface{} , []byte, actual: %v", val.Type().Kind())
 				}
 			} else {
 				bodyVal := make(map[string]interface{})
 				if len(respBytes) > 0 {
 					if err := json.Unmarshal(respBytes, &bodyVal); err != nil {
-						return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes)))
+						return fmt.Errorf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, string(respBytes))
 					}
 				}
 				value, err := bodyParamConverter(bodyVal, bodyParam, inType.Field(index).Type)
 				if err != nil {
-					return e.NewError(e.Error, e.ErrDecodeRequestBody, fmt.Sprintf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, bodyVal))
+					return fmt.Errorf("param %v converted error,err :%v , val : %v ", inType.Field(index).Name, err, bodyVal)
 				}
 				val.Set(reflect.ValueOf(value))
 			}

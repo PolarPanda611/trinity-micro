@@ -20,6 +20,8 @@ import (
 	"github.com/PolarPanda611/trinity-micro/core/e"
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
 	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
+	"github.com/PolarPanda611/trinity-micro/core/logx"
+	"github.com/PolarPanda611/trinity-micro/middleware"
 )
 
 type bootingController struct {
@@ -150,6 +152,8 @@ func DIHandler(container *container.Container, instanceName string, funcName str
 }
 
 func (t *Trinity) diRouter() {
+	t.mux.Use(middleware.Recovery(t.log))
+	t.mux.Use(logx.SessionLogger(t.log))
 	t.routerSelfCheck()
 	// register router
 	for _, controller := range _bootingControllers {

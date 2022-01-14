@@ -4,8 +4,6 @@ import (
 	"sync"
 
 	"github.com/PolarPanda611/trinity-micro/core/ioc/container"
-	"github.com/PolarPanda611/trinity-micro/core/logx"
-	"github.com/PolarPanda611/trinity-micro/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -59,8 +57,6 @@ func New(c ...Config) *Trinity {
 		)),
 	}
 
-	ins.mux.Use(middleware.Recovery(ins.log))
-	ins.mux.Use(logx.SessionLogger(ins.log))
 	ins.cron.Start()
 	ins.initInstance()
 	return ins

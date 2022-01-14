@@ -2,6 +2,7 @@ package httpx
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -84,7 +85,7 @@ func InvokeHandler(handlerType reflect.Type, r *http.Request) ([]reflect.Value, 
 
 func InvokeMethod(handlerType reflect.Type, r *http.Request, instance interface{}, w http.ResponseWriter) ([]reflect.Value, error) {
 	if !IsHandler(handlerType) {
-		return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler type , must be func ")
+		return nil, e.NewError(e.Error, e.ErrInternalServer, "wrong handler type , must be func ")
 	}
 	numsIn := HandlerNumsIn(handlerType)
 	InParams := make([]reflect.Value, numsIn)
@@ -102,11 +103,11 @@ func InvokeMethod(handlerType reflect.Type, r *http.Request, instance interface{
 				InParams[i] = reflect.ValueOf(w)
 				break
 			}
-			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , interface only support context and httpResponseWriter")
+			return nil, e.NewError(e.Error, e.ErrInternalServer, "wrong handler , interface only support context and httpResponseWriter")
 		case reflect.Struct:
 			targetValue := reflect.New(inType).Interface()
 			if err := Parse(r, targetValue); err != nil {
-				return nil, err
+				return nil, e.NewError(e.Error, e.ErrInvalidRequest, fmt.Sprintf("parse param err: %v", err))
 			}
 			InParams[i] = reflect.ValueOf(targetValue).Elem()
 		case reflect.Ptr:
@@ -120,12 +121,11 @@ func InvokeMethod(handlerType reflect.Type, r *http.Request, instance interface{
 			}
 			targetValue := reflect.New(inType.Elem()).Interface()
 			if err := Parse(r, targetValue); err != nil {
-				return nil, err
+				return nil, e.NewError(e.Error, e.ErrInvalidRequest, fmt.Sprintf("parse param err: %v", err))
 			}
 			InParams[i] = reflect.ValueOf(targetValue)
-			// return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported ptr ")
 		default:
-			return nil, e.NewError(e.Error, e.ErrDIParam, "wrong handler , unsupported type ")
+			return nil, e.NewError(e.Error, e.ErrInternalServer, "wrong handler , unsupported type ")
 		}
 		i++
 	}
