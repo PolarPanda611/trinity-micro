@@ -94,6 +94,9 @@ const (
 	 */
 	ErrDBUpdateZeroLine errorCode = 400015
 )
+const (
+	ErrUnauthorized = 401001
+)
 
 // 404 error
 const (

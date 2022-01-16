@@ -58,5 +58,6 @@ var (
 		ErrDecodeRequestBody:               "DecodeRequestBodyError",
 		ErrPanic:                           "PanicError",
 		ErrDBUpdateZeroLine:                "ErrDBUpdateZeroLine",
+		ErrUnauthorized:                    "ErrUnauthorized",
 	}
 )

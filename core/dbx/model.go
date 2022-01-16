@@ -11,7 +11,7 @@ type Model struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time `gorm:"index"`
-	Version   string     `gorm:"index"`
+	Version   string     `gorm:"type:varchar(50);index"`
 }
 
 func WithTenant(tenant string, m interface{}) func(db *gorm.DB) *gorm.DB {
