@@ -32,7 +32,7 @@ func PGMigrate(ctx context.Context, tenants ...string) error {
 				fmt.Println(err)
 			}
 			for _, value := range _registeredValue[i] {
-				if err := sessionDB.Scopes(WithTenant(tenant, v)).FirstOrCreate(value); err != nil {
+				if err := sessionDB.Scopes(WithTenant(tenant, v)).FirstOrCreate(value).Error; err != nil {
 					fmt.Println(err)
 				}
 			}
