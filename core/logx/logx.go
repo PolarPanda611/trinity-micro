@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -24,19 +25,32 @@ const (
 )
 
 type Config struct {
-	ServiceName string
-	LogfilePath string
+	ServiceName  string
+	Env          string
+	MinimalLevel logrus.Level
+	Output       io.Writer
 }
 
 func Init(c Config) logrus.FieldLogger {
-	log := logrus.New()
-	log.SetFormatter(&logrus.JSONFormatter{})
-	file, err := os.OpenFile(c.LogfilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("Failed to log to file, using default stderr, err: %v ", err)
+	if c.ServiceName == "" {
+		log.Fatal("init logger failed, service name cannot be empty")
 	}
-	log.SetOutput(file)
-	return log.WithField("service", c.ServiceName)
+	if c.Env == "" {
+		log.Fatal("init logger failed, env cannot be empty")
+	}
+	if c.MinimalLevel == 0 {
+		c.MinimalLevel = logrus.WarnLevel
+	}
+	if c.Output == nil {
+		c.Output = os.Stdout
+	}
+	logger := logrus.New()
+	logger.SetFormatter(&logrus.JSONFormatter{})
+	logger.SetOutput(c.Output)
+	return logger.WithFields(logrus.Fields{
+		"service": c.ServiceName,
+		"env":     c.Env,
+	})
 }
 
 var _ http.ResponseWriter = new(recordResponseWriter)
