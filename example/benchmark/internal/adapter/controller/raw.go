@@ -12,7 +12,7 @@ import (
 	"strconv"
 
 	"github.com/PolarPanda611/trinity-micro/core/httpx"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 func SimpleRaw(w http.ResponseWriter, r *http.Request) {

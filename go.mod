@@ -6,7 +6,6 @@ require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.3
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/opentracing/opentracing-go v1.2.0
