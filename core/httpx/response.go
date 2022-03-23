@@ -79,9 +79,11 @@ func HttpResponse(ctx context.Context, w http.ResponseWriter, status int, res in
 		Result: res,
 	}
 	x := opentracing.SpanFromContext(ctx)
-	sc, ok := x.Context().(jaeger.SpanContext)
-	if ok {
-		result.TraceID = sc.TraceID().String()
+	if x != nil {
+		sc, ok := x.Context().(jaeger.SpanContext)
+		if ok {
+			result.TraceID = sc.TraceID().String()
+		}
 	}
 	JsonResponse(w, status, result)
 }
